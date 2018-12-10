@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+<LinearLayout android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragment.ContactsFragment">
-
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:hyphenate="http://schemas.android.com/apk/res-auto">
+    <com.hyphenate.easeui.widget.EaseContactList
+        android:id="@+id/contact_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
-
-</FrameLayout>
+        hyphenate:ctsListInitialLetterBg="#abc"/>
+</LinearLayout>

@@ -55,6 +55,9 @@
             </intent-filter>
         </receiver>
 
+        <!--Android 9 启用 Apache HTTP 客户端-->
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
+
         <activity android:name=".MainActivity"></activity>
         <activity android:name=".LoginActivity">
             <intent-filter>

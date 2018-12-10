@@ -1,6 +1,5 @@
 package com.mean.meanchateasemobapi.fragment;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -11,6 +10,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.easeui.domain.EaseUser;
+import com.hyphenate.easeui.widget.EaseConversationList;
 import com.mean.meanchateasemobapi.R;
 import com.mean.meanchateasemobapi.adapter.ChatRecyclerViewAdapter;
 
@@ -18,6 +20,7 @@ import java.util.List;
 
 public class ChatFragment extends Fragment implements ChatRecyclerViewAdapter.OnUserItemInteractionListener{
     private List<ChatRecyclerViewAdapter.ChatItem> chatItems;
+    private EaseConversationList conversationListView;
 
     private OnChatFragmentInteractionListener mListener;
 
@@ -44,16 +47,12 @@ public class ChatFragment extends Fragment implements ChatRecyclerViewAdapter.On
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.fragment_chat, container, false);
-        RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(layoutManager);
-        ChatRecyclerViewAdapter adapter = new ChatRecyclerViewAdapter(chatItems);
-        adapter.setOnUserItemInteractionListener(this);
-        recyclerView.setAdapter(adapter);
-        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),DividerItemDecoration.HORIZONTAL));
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        conversationListView = view.findViewById(R.id.chat_list);
+        mListener.onChatFragmentStart(conversationListView);
+
         return view;
     }
+
 
     @Override
     public void onDetach() {
@@ -62,13 +61,13 @@ public class ChatFragment extends Fragment implements ChatRecyclerViewAdapter.On
     }
 
     @Override
-    public void onUserItemClick(String username) {
-        mListener.onChatUserClick(username);
+    public void onUserItemClick(EaseUser user) {
+        mListener.onChatUserClick(user);
     }
 
     @Override
-    public void onUserItemLongClick(String username) {
-        mListener.onChatUserLongClick(username);
+    public void onUserItemLongClick(EaseUser user) {
+        mListener.onChatUserLongClick(user);
 
     }
 
@@ -77,7 +76,8 @@ public class ChatFragment extends Fragment implements ChatRecyclerViewAdapter.On
     }
 
     public interface OnChatFragmentInteractionListener {
-        void onChatUserClick(String username);
-        void onChatUserLongClick(String username);
+        void onChatUserClick(EaseUser user);
+        void onChatUserLongClick(EaseUser user);
+        void onChatFragmentStart(EaseConversationList conversationList);
     }
 }

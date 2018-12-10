@@ -88,13 +88,16 @@ public class LoginActivity extends AppCompatActivity{
                     @Override
                     public void onError(int code, String error) {
                         showToastSafe("登录出错："+error);
-                        updateUI$AllowLogin();
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateUI$AllowLogin();
+                            }
+                        });
                     }
 
                     @Override
-                    public void onProgress(int progress, String status) {
-                        pb_logining.setProgress(progress);
-                    }
+                    public void onProgress(int progress, String status) { }
                 });
             }
         });

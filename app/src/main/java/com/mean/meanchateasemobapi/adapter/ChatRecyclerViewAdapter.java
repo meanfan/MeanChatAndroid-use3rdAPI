@@ -11,6 +11,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.hyphenate.easeui.domain.EaseUser;
 import com.mean.meanchateasemobapi.R;
 
 import java.io.Serializable;
@@ -24,8 +26,7 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<ChatRecyclerVi
     private OnUserItemInteractionListener mListener;
 
     public static class ChatItem {
-        public Bitmap icon;
-        public String name;
+        public EaseUser user;
         public Date date;
         public String message;
     }
@@ -63,22 +64,22 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<ChatRecyclerVi
 
     @Override
     public void onBindViewHolder(@NonNull final VH vh, final int i) {
-        vh.iv_icon.setImageBitmap(items.get(i).icon);
-        vh.tv_name.setText(items.get(i).name);
+        vh.iv_icon.setImageBitmap(null);
+        vh.tv_name.setText(items.get(i).user.getUsername());
         DateFormat dateFormat = new SimpleDateFormat("MM月dd日 hh:mm");
         vh.tv_date.setText(dateFormat.format(items.get(i).date));
         vh.tv_message.setText(items.get(i).message);
-        final String username = items.get(vh.getAdapterPosition()).name;
+        final EaseUser user = items.get(vh.getAdapterPosition()).user;
         vh.rl_item_chat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mListener.onUserItemClick(username);
+                mListener.onUserItemClick(user);
             }
         });
         vh.rl_item_chat.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                mListener.onUserItemLongClick(username);
+                mListener.onUserItemLongClick(user);
                 return true;
             }
         });
@@ -88,7 +89,7 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<ChatRecyclerVi
     }
 
     public interface OnUserItemInteractionListener{
-        void onUserItemClick(String username);
-        void onUserItemLongClick(String username);
+        void onUserItemClick(EaseUser user);
+        void onUserItemLongClick(EaseUser user);
     }
 }
