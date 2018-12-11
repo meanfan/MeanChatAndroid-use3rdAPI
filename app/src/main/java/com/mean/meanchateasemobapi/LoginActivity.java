@@ -13,8 +13,6 @@ import android.widget.Toast;
 
 import com.hyphenate.EMCallBack;
 import com.hyphenate.chat.EMClient;
-import com.hyphenate.exceptions.HyphenateException;
-import com.mean.meanchateasemobapi.adapter.ChatRecyclerViewAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,7 +80,12 @@ public class LoginActivity extends AppCompatActivity{
                         showToastSafe("登录成功");
                         Intent intent = new Intent(LoginActivity.this,MainActivity.class);
                         startActivity(intent);
-                        finish();
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                LoginActivity.this.finish();
+                            }
+                        });
                     }
 
                     @Override
@@ -99,6 +102,13 @@ public class LoginActivity extends AppCompatActivity{
                     @Override
                     public void onProgress(int progress, String status) { }
                 });
+            }
+        });
+        tv_register.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this,RegisterActivity.class);
+                startActivity(intent);
             }
         });
 

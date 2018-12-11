@@ -2,25 +2,20 @@ package com.mean.meanchateasemobapi.fragment;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.hyphenate.chat.EMClient;
+import com.hyphenate.EMMessageListener;
+import com.hyphenate.chat.EMMessage;
 import com.hyphenate.easeui.domain.EaseUser;
 import com.hyphenate.easeui.widget.EaseConversationList;
 import com.mean.meanchateasemobapi.R;
-import com.mean.meanchateasemobapi.adapter.ChatRecyclerViewAdapter;
 
 import java.util.List;
 
-public class ChatFragment extends Fragment implements ChatRecyclerViewAdapter.OnUserItemInteractionListener{
-    private List<ChatRecyclerViewAdapter.ChatItem> chatItems;
-    private EaseConversationList conversationListView;
+public class ChatFragment extends Fragment implements EMMessageListener {
+    private EaseConversationList chatListView;
 
     private OnChatFragmentInteractionListener mListener;
 
@@ -33,11 +28,6 @@ public class ChatFragment extends Fragment implements ChatRecyclerViewAdapter.On
         return fragment;
     }
 
-    public void setChatItems(List<ChatRecyclerViewAdapter.ChatItem> chatItems){
-        this.chatItems = chatItems;
-    }
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,28 +37,22 @@ public class ChatFragment extends Fragment implements ChatRecyclerViewAdapter.On
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.fragment_chat, container, false);
-        conversationListView = view.findViewById(R.id.chat_list);
-        mListener.onChatFragmentStart(conversationListView);
+        chatListView = view.findViewById(R.id.chat_list);
+        mListener.onChatFragmentStart(chatListView);
 
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        chatListView.refresh();
+    }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
-    }
-
-    @Override
-    public void onUserItemClick(EaseUser user) {
-        mListener.onChatUserClick(user);
-    }
-
-    @Override
-    public void onUserItemLongClick(EaseUser user) {
-        mListener.onChatUserLongClick(user);
-
     }
 
     public void setOnFragmentInteractionListener(OnChatFragmentInteractionListener listener) {
@@ -79,5 +63,35 @@ public class ChatFragment extends Fragment implements ChatRecyclerViewAdapter.On
         void onChatUserClick(EaseUser user);
         void onChatUserLongClick(EaseUser user);
         void onChatFragmentStart(EaseConversationList conversationList);
+    }
+
+    @Override
+    public void onMessageReceived(List<EMMessage> messages) {
+        chatListView.refresh();
+    }
+
+    @Override
+    public void onCmdMessageReceived(List<EMMessage> messages) {
+
+    }
+
+    @Override
+    public void onMessageRead(List<EMMessage> messages) {
+
+    }
+
+    @Override
+    public void onMessageDelivered(List<EMMessage> messages) {
+
+    }
+
+    @Override
+    public void onMessageRecalled(List<EMMessage> messages) {
+
+    }
+
+    @Override
+    public void onMessageChanged(EMMessage message, Object change) {
+
     }
 }

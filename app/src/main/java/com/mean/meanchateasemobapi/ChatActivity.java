@@ -1,33 +1,50 @@
 package com.mean.meanchateasemobapi;
 
+import android.app.Activity;
+import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
+import com.hyphenate.EMCallBack;
+import com.hyphenate.EMMessageListener;
 import com.hyphenate.chat.EMClient;
+import com.hyphenate.chat.EMConversation;
 import com.hyphenate.chat.EMMessage;
+import com.hyphenate.easeui.EaseUI;
 import com.hyphenate.easeui.domain.EaseEmojicon;
 import com.hyphenate.easeui.domain.EaseUser;
-import com.hyphenate.easeui.ui.EaseChatFragment;
-import com.hyphenate.easeui.ui.EaseChatRoomListener;
+import com.hyphenate.easeui.utils.EaseCommonUtils;
 import com.hyphenate.easeui.widget.EaseChatInputMenu;
 import com.hyphenate.easeui.widget.EaseChatMessageList;
 import com.hyphenate.easeui.widget.EaseTitleBar;
 import com.hyphenate.easeui.widget.EaseVoiceRecorderView;
+import com.hyphenate.exceptions.HyphenateException;
+
+import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import static com.hyphenate.easeui.EaseConstant.CHATTYPE_GROUP;
 
-public class ChatActivity extends AppCompatActivity {
+public class ChatActivity extends AppCompatActivity  implements EMMessageListener {
     private EaseTitleBar titleBar;
     private EaseChatMessageList messageList;
     private EaseChatInputMenu inputMenu;
     private SwipeRefreshLayout refreshLayout;
     private EaseVoiceRecorderView voiceRecorderView;
+    private EMConversation conversation;
     private EaseUser toChatUser;
     private String toChatUsername;
     private int chatType;
+    private boolean isRoaming = true;
+    private int pageSize = 20;
+    private boolean isMessageListInited = false;
+
+    Handler handler;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,10 +56,13 @@ public class ChatActivity extends AppCompatActivity {
         titleBar = findViewById(R.id.title_bar);
         titleBar.setTitle(toChatUsername);
         titleBar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-
+        handler = new Handler();
+        EMClient.getInstance().chatManager().addMessageListener(this); //消息监听
         initMessageList();
         initInputMenu();
+        initConversation();
     }
+
 
     private void initInputMenu() {
         inputMenu = findViewById(R.id.input_menu);
@@ -122,20 +142,138 @@ public class ChatActivity extends AppCompatActivity {
         messageList.refresh();
         messageList.refreshSeekTo(0);
         messageList.refreshSelectLast();
+        isMessageListInited = true;
+    }
+
+    protected void initConversation(){
+        conversation = EMClient.getInstance().chatManager()
+                .getConversation(toChatUsername, EaseCommonUtils.getConversationType(chatType), true);
+        conversation.markAllMessagesAsRead();
+        if (!isRoaming) {
+            final List<EMMessage> msgs = conversation.getAllMessages();
+            int msgCount = (msgs != null ? msgs.size() : 0);
+            if (msgCount < conversation.getAllMsgCount() && msgCount < pageSize) {
+                String msgId = null;
+                if (msgs != null && msgs.size() > 0) {
+                    msgId = msgs.get(0).getMsgId();
+                }
+                conversation.loadMoreMsgFromDB(msgId, pageSize - msgCount);
+            }
+        } else {
+            Executor fetchQueue = Executors.newSingleThreadExecutor();
+            fetchQueue.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        EMClient.getInstance().chatManager()
+                                .fetchHistoryMessages(toChatUsername, EaseCommonUtils.getConversationType(chatType), pageSize, "");
+                        final List<EMMessage> msgs = conversation.getAllMessages();
+                        int msgCount = (msgs != null ? msgs.size() : 0);
+                        if (msgCount < conversation.getAllMsgCount() && msgCount < pageSize) {
+                            String msgId = null;
+                            if (msgs != null && msgs.size() > 0) {
+                                msgId = msgs.get(0).getMsgId();
+                            }
+                            conversation.loadMoreMsgFromDB(msgId, pageSize - msgCount);
+                        }
+                        messageList.refreshSelectLast();
+                    } catch (HyphenateException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
     }
 
     private void sendTextMessage(String content){
-        //创建一条文本消息
         EMMessage message = EMMessage.createTxtSendMessage(content, toChatUsername);
-        //如果是群聊，设置chattype，默认是单聊
-        if (chatType == CHATTYPE_GROUP)
-            message.setChatType(EMMessage.ChatType.GroupChat);
-        //发送消息
+        message.setChatType(EMMessage.ChatType.Chat);
         EMClient.getInstance().chatManager().sendMessage(message);
+        message.setMessageStatusCallback(new EMCallBack() {
+            @Override
+            public void onSuccess() {
+                if(isMessageListInited){
+                    messageList.refresh();
+                }
+            }
+
+            @Override
+            public void onError(int code, String error) {
+                showToast("消息发送出错：("+code+")"+error);
+                if(isMessageListInited) {
+                    messageList.refresh();
+                }
+            }
+
+            @Override
+            public void onProgress(int progress, String status) {
+                if(isMessageListInited) {
+                    messageList.refresh();
+                }
+            }
+        });
     }
 
     private void sendVoiceMessage(String voiceFilePath, int voiceTimeLength){
 
     }
 
+    private void showToast(String message){
+        Toast.makeText(ChatActivity.this,message,Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(isMessageListInited) {
+            messageList.refresh();
+        }
+    }
+
+    @Override
+    public void onMessageReceived(List<EMMessage> messages) {
+        for (EMMessage message : messages) {
+            String username = message.getFrom();
+            if (username.equals(toChatUsername)
+                    || message.getTo().equals(toChatUsername)
+                    || message.conversationId().equals(toChatUsername)) {
+                messageList.refreshSelectLast();
+                conversation.markMessageAsRead(message.getMsgId());
+            }
+            EaseUI.getInstance().getNotifier().vibrateAndPlayTone(message);
+        }
+    }
+
+    @Override
+    public void onCmdMessageReceived(List<EMMessage> messages) {
+
+    }
+
+    @Override
+    public void onMessageRead(List<EMMessage> messages) {
+        if(isMessageListInited) {
+            messageList.refresh();
+        }
+    }
+
+    @Override
+    public void onMessageDelivered(List<EMMessage> messages) {
+        if(isMessageListInited) {
+            messageList.refresh();
+        }
+    }
+
+    @Override
+    public void onMessageRecalled(List<EMMessage> messages) {
+        if(isMessageListInited) {
+            messageList.refresh();
+        }
+    }
+
+    @Override
+    public void onMessageChanged(EMMessage message, Object change) {
+        if(isMessageListInited) {
+            messageList.refresh();
+        }
+    }
 }

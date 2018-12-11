@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.hyphenate.EMCallBack;
 import com.hyphenate.EMConnectionListener;
+import com.hyphenate.EMConversationListener;
 import com.hyphenate.EMError;
 import com.hyphenate.EMValueCallBack;
 import com.hyphenate.chat.EMClient;
@@ -27,17 +28,13 @@ import com.hyphenate.easeui.widget.EaseContactList;
 import com.hyphenate.easeui.widget.EaseConversationList;
 import com.hyphenate.easeui.widget.EaseTitleBar;
 import com.hyphenate.util.NetUtils;
-import com.mean.meanchateasemobapi.adapter.ChatRecyclerViewAdapter;
 import com.mean.meanchateasemobapi.fragment.ChatFragment;
 import com.mean.meanchateasemobapi.fragment.ContactsFragment;
 import com.mean.meanchateasemobapi.fragment.MeFragment;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +48,6 @@ public class MainActivity extends FragmentActivity
     private MeFragment meFragment;
     private List<Fragment> fragments;
     private int currentFragment;
-    private List<ChatRecyclerViewAdapter.ChatItem> chatItems;
     Handler handler = new Handler();
 
 
@@ -83,7 +79,6 @@ public class MainActivity extends FragmentActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        chatItems = new ArrayList<>();
         fragments = new ArrayList<>();
 
         titleBar = findViewById(R.id.title_bar);
@@ -91,7 +86,7 @@ public class MainActivity extends FragmentActivity
         titleBar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
 
         chatFragment = ChatFragment.newInstance();
-        chatFragment.setChatItems(loadLocalChatList());
+        EMClient.getInstance().chatManager().addMessageListener(chatFragment);
         chatFragment.setOnFragmentInteractionListener(this);
         fragments.add(chatFragment);
 
@@ -156,17 +151,6 @@ public class MainActivity extends FragmentActivity
         return false;
     }
 
-    public List<ChatRecyclerViewAdapter.ChatItem> loadLocalChatList(){
-        //TODO load from cache
-        List<ChatRecyclerViewAdapter.ChatItem> list = new ArrayList<>();
-        ChatRecyclerViewAdapter.ChatItem chatItem = new ChatRecyclerViewAdapter.ChatItem();
-        EaseUser user = new EaseUser("user1");
-        chatItem.user = user;
-        chatItem.date = new Date();
-        chatItem.message = "Hello~~~";
-        list.add(chatItem);
-        return list;
-    }
 
     public void showToast(String msg){
         Toast.makeText(MainActivity.this,msg,Toast.LENGTH_SHORT).show();
@@ -187,6 +171,23 @@ public class MainActivity extends FragmentActivity
                     onChatUserClick(user);
                 }
 
+            }
+        });
+        EMClient.getInstance().chatManager().addConversationListener(new EMConversationListener() {
+            @Override
+            public void onCoversationUpdate() {
+                chatList.refresh();
+                chatList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        EMConversation conversation = chatList.getItem(position);
+                        if(conversation.getType() == EMConversation.EMConversationType.Chat){
+                            String username = conversation.conversationId();
+                            EaseUser user = new EaseUser(username);
+                            onChatUserClick(user);
+                        }
+                    }
+                });
             }
         });
     }
