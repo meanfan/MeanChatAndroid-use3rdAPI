@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        hyphenate:titleBarLeftImage="@null" />
+        hyphenate:titleBarLeftImage="@drawable/ic_left_array_white" />
     <com.hyphenate.easeui.widget.EaseChatMessageList
         android:id="@+id/message_list"
         android:layout_width="match_parent"

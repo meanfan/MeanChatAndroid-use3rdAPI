@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.hyphenate.EMCallBack;
 import com.hyphenate.EMConnectionListener;
+import com.hyphenate.EMContactListener;
 import com.hyphenate.EMConversationListener;
 import com.hyphenate.EMError;
 import com.hyphenate.EMValueCallBack;
@@ -28,9 +29,11 @@ import com.hyphenate.easeui.widget.EaseContactList;
 import com.hyphenate.easeui.widget.EaseConversationList;
 import com.hyphenate.easeui.widget.EaseTitleBar;
 import com.hyphenate.util.NetUtils;
+import com.mean.meanchateasemobapi.controller.ClientMessageManager;
 import com.mean.meanchateasemobapi.fragment.ChatFragment;
 import com.mean.meanchateasemobapi.fragment.ContactsFragment;
 import com.mean.meanchateasemobapi.fragment.MeFragment;
+import com.mean.meanchateasemobapi.model.ClientMessage;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -133,6 +136,65 @@ public class MainActivity extends FragmentActivity
             }
         }
         EMClient.getInstance().addConnectionListener(new MyEMConnectionListener());
+        class MyEMContactListener implements EMContactListener{
+            @Override
+            public void onContactAdded(String username) {
+                String content = String.format("%s 已成为你的好友",username);
+                //showToast(content);
+                ClientMessageManager.getInstance().addNewMessage("新好友",content,ClientMessage.Type.FRIEND_NEW);
+                if(contactsFragment!=null && currentFragment == 1){
+                    contactsFragment.refresh();
+                    contactsFragment.setMessageView(content);
+                }
+            }
+
+            @Override
+            public void onContactDeleted(String username) {
+
+                String content = String.format("好友 %s 已将您删除",username);
+                //showToast(content);
+                ClientMessageManager.getInstance().addNewMessage("好友信息",content,ClientMessage.Type.FRIEND_CHANGED);
+                if(contactsFragment!=null && currentFragment == 1){
+                    contactsFragment.refresh();
+                    contactsFragment.setMessageView(content);
+                }
+            }
+
+            @Override
+            public void onContactInvited(String username, String reason) {
+                String content = String.format("%s 请求加您为好友",username);
+                if(!reason.isEmpty()){
+                    content = content.concat(String.format(",申请理由:\n%s",reason));
+                }
+                ClientMessageManager.getInstance().addNewMessage("好友请求",content,ClientMessage.Type.FRIEND_REQUEST);
+                if(contactsFragment!=null && currentFragment == 1){
+                    contactsFragment.setMessageView(content);
+                }
+            }
+
+            @Override
+            public void onFriendRequestAccepted(String username) {
+                String content = String.format("%s 已同意您的好友请求",username);
+                //showToast(content);
+                ClientMessageManager.getInstance().addNewMessage("好友信息",content,ClientMessage.Type.INFORMATION);
+                if(contactsFragment!=null && currentFragment == 1){
+                    contactsFragment.refresh();
+                    contactsFragment.setMessageView(content);
+                }
+
+            }
+
+            @Override
+            public void onFriendRequestDeclined(String username) {
+                String content = String.format(" %s 拒绝了你的好友请求",username);
+                //showToast(content);
+                ClientMessageManager.getInstance().addNewMessage("好友信息",content,ClientMessage.Type.INFORMATION);
+                if(contactsFragment!=null && currentFragment == 1){
+                    contactsFragment.setMessageView(content);
+                }
+            }
+        }
+        EMClient.getInstance().contactManager().setContactListener(new MyEMContactListener());
     }
 
     private boolean switchFragment(int currentFragment,int index)
@@ -146,6 +208,19 @@ public class MainActivity extends FragmentActivity
             }
             transaction.show(fragments.get(index)).commitAllowingStateLoss();
             this.currentFragment = index;
+            if(index == 1){
+                titleBar.setRightLayoutVisibility(View.VISIBLE);
+                titleBar.setRightImageResource(R.drawable.ic_add_user_white);
+                titleBar.setRightLayoutVisibility(View.VISIBLE);
+                titleBar.setRightLayoutClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onContactsAddFriend();
+                    }
+                });
+            }else {
+                titleBar.setRightLayoutVisibility(View.INVISIBLE);
+            }
             return true;
         }
         return false;
@@ -246,7 +321,7 @@ public class MainActivity extends FragmentActivity
     }
 
     @Override
-    public void onContactFragmentStart(final EaseContactList contactList) {
+    public void onContactsFragmentStart(final EaseContactList contactList) {
         EMClient.getInstance().contactManager().aysncGetAllContactsFromServer(new EMValueCallBack<List<String>>() {
             @Override
             public void onSuccess(List<String> value) {
@@ -276,6 +351,12 @@ public class MainActivity extends FragmentActivity
                 onChatUserClick(user);
             }
         });
+    }
+
+
+    public void onContactsAddFriend() {
+        Intent intent = new Intent(MainActivity.this,AddFriendActivity.class);
+        startActivity(intent);
     }
 
     @Override

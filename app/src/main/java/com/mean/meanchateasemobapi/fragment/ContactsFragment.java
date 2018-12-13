@@ -5,14 +5,19 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import com.hyphenate.easeui.domain.EaseUser;
 import com.hyphenate.easeui.widget.EaseContactList;
+import com.hyphenate.easeui.widget.EaseTitleBar;
 import com.mean.meanchateasemobapi.R;
 
 
 public class ContactsFragment extends Fragment {
     private EaseContactList contactList;
+    private EaseTitleBar titleBar;
+    private TextView tv_message;
+    private ImageView iv_message_dot;
 
     private OnContactsFragmentInteractionListener mListener;
 
@@ -35,13 +40,15 @@ public class ContactsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view  = inflater.inflate(R.layout.fragment_contacts, container, false);
         contactList = view.findViewById(R.id.contact_list);
+        tv_message = view.findViewById(R.id.tv_message);
+        iv_message_dot = view.findViewById(R.id.iv_message_dot);
         return view;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        mListener.onContactFragmentStart(contactList);
+        mListener.onContactsFragmentStart(contactList);
     }
 
     @Override
@@ -50,11 +57,25 @@ public class ContactsFragment extends Fragment {
         mListener = null;
     }
 
+    public void clearMessageView(){
+        tv_message.setText(R.string.message_default);
+        iv_message_dot.setVisibility(View.INVISIBLE);
+    }
+
+    public void setMessageView(String message){
+        tv_message.setText(message);
+        iv_message_dot.setVisibility(View.VISIBLE);
+    }
+
     public void setContactsFragmentInteractionListener(OnContactsFragmentInteractionListener mListener) {
         this.mListener = mListener;
     }
 
+    public void refresh(){
+        contactList.refresh();
+    }
+
     public interface OnContactsFragmentInteractionListener {
-        void onContactFragmentStart(EaseContactList chatList);
+        void onContactsFragmentStart(EaseContactList chatList);
     }
 }

@@ -21,14 +21,14 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:usesCleartextTraffic="true"
         android:name=".AppApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
 
         <!-- 设置环信应用的AppKey -->
         <meta-data
@@ -56,10 +56,12 @@
             </intent-filter>
         </receiver>
 
-        <!--Android 9 启用 Apache HTTP 客户端-->
-        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
+        <!-- Android 9 启用 Apache HTTP 客户端 -->
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
 
-        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".MainActivity" />
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -67,8 +69,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ChatActivity"></activity>
-        <activity android:name=".RegisterActivity"></activity>
+        <activity android:name=".ChatActivity" />
+        <activity android:name=".RegisterActivity" />
+        <activity android:name=".AddFriendActivity" />
+        <activity android:name=".MessagesActivity"></activity>
     </application>
 
 </manifest>
