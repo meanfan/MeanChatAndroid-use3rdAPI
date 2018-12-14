@@ -6,6 +6,7 @@
     xmlns:hyphenate="http://schemas.android.com/apk/res-auto">
     <!--<include layout="@layout/view_search_bar"/>-->
     <LinearLayout
+        android:id="@+id/ll_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">

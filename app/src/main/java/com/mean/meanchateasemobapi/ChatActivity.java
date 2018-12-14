@@ -14,6 +14,7 @@ import com.hyphenate.EMMessageListener;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMConversation;
 import com.hyphenate.chat.EMMessage;
+import com.hyphenate.easeui.EaseConstant;
 import com.hyphenate.easeui.EaseUI;
 import com.hyphenate.easeui.domain.EaseEmojicon;
 import com.hyphenate.easeui.domain.EaseUser;
@@ -37,9 +38,7 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
     private SwipeRefreshLayout refreshLayout;
     private EaseVoiceRecorderView voiceRecorderView;
     private EMConversation conversation;
-    private EaseUser toChatUser;
     private String toChatUsername;
-    private int chatType;
     private boolean isRoaming = true;
     private int pageSize = 20;
     private boolean isMessageListInited = false;
@@ -49,13 +48,16 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-        //toChatUser = getIntent().getParcelableExtra("user");
-        //toChatUsername = toChatUser.getUsername();
         toChatUsername = getIntent().getStringExtra("username");
-        chatType = getIntent().getIntExtra("chatType",0);
         titleBar = findViewById(R.id.title_bar);
         titleBar.setTitle(toChatUsername);
         titleBar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+        titleBar.setLeftLayoutClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         handler = new Handler();
         EMClient.getInstance().chatManager().addMessageListener(this); //消息监听
         initMessageList();
@@ -66,6 +68,7 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
 
     private void initInputMenu() {
         inputMenu = findViewById(R.id.input_menu);
+        voiceRecorderView = findViewById(R.id.voice_recorder);
         //注册底部菜单扩展栏item
         //传入item对应的文字，图片及点击事件监听，extendMenuItemClickListener实现EaseChatExtendMenuItemClickListener
         ///inputMenu.registerExtendMenuItem(R.string.attach_video, R.drawable.em_chat_video_selector, ITEM_VIDEO, extendMenuItemClickListener);
@@ -147,7 +150,7 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
 
     protected void initConversation(){
         conversation = EMClient.getInstance().chatManager()
-                .getConversation(toChatUsername, EaseCommonUtils.getConversationType(chatType), true);
+                .getConversation(toChatUsername, EaseCommonUtils.getConversationType(EaseConstant.CHATTYPE_SINGLE), true);
         conversation.markAllMessagesAsRead();
         if (!isRoaming) {
             final List<EMMessage> msgs = conversation.getAllMessages();
@@ -166,7 +169,7 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
                 public void run() {
                     try {
                         EMClient.getInstance().chatManager()
-                                .fetchHistoryMessages(toChatUsername, EaseCommonUtils.getConversationType(chatType), pageSize, "");
+                                .fetchHistoryMessages(toChatUsername, EaseCommonUtils.getConversationType(EaseConstant.CHATTYPE_SINGLE), pageSize, "");
                         final List<EMMessage> msgs = conversation.getAllMessages();
                         int msgCount = (msgs != null ? msgs.size() : 0);
                         if (msgCount < conversation.getAllMsgCount() && msgCount < pageSize) {

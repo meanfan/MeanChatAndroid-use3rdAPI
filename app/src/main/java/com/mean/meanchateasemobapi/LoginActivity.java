@@ -79,13 +79,13 @@ public class LoginActivity extends AppCompatActivity{
                     public void onSuccess() {
                         showToastSafe("登录成功");
                         Intent intent = new Intent(LoginActivity.this,MainActivity.class);
-                        startActivity(intent);
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
                                 LoginActivity.this.finish();
                             }
                         });
+                        startActivity(intent);
                     }
 
                     @Override

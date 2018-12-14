@@ -5,11 +5,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.util.Pair;
+import android.view.ContextMenu;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -45,6 +49,10 @@ public class MainActivity extends FragmentActivity
         implements ChatFragment.OnChatFragmentInteractionListener,
         ContactsFragment.OnContactsFragmentInteractionListener,
         MeFragment.OnFragmentInteractionListener{
+    public static final String TAG = MainActivity.class.getSimpleName();
+
+    public static final int REQUEST_CODE_SHOW_USER_MESSAGE = 1000;
+    public static final int MENU_ID_DELETE = Menu.FIRST+1;
     private EaseTitleBar titleBar;
     private ChatFragment chatFragment;
     private ContactsFragment contactsFragment;
@@ -52,6 +60,8 @@ public class MainActivity extends FragmentActivity
     private List<Fragment> fragments;
     private int currentFragment;
     Handler handler = new Handler();
+
+    int chatSizeIgnoreSort = 5; //一个大致的数即可
 
 
     private BottomNavigationView navigation;
@@ -136,27 +146,43 @@ public class MainActivity extends FragmentActivity
             }
         }
         EMClient.getInstance().addConnectionListener(new MyEMConnectionListener());
+        EMClient.getInstance().chatManager().addConversationListener(new EMConversationListener() {
+            @Override
+            public void onCoversationUpdate() {
+                refreshChatList(chatSizeIgnoreSort);
+            }
+        });
         class MyEMContactListener implements EMContactListener{
             @Override
             public void onContactAdded(String username) {
-                String content = String.format("%s 已成为你的好友",username);
-                //showToast(content);
+                final String content = String.format("%s 已成为你的好友",username);
                 ClientMessageManager.getInstance().addNewMessage("新好友",content,ClientMessage.Type.FRIEND_NEW);
-                if(contactsFragment!=null && currentFragment == 1){
-                    contactsFragment.refresh();
-                    contactsFragment.setMessageView(content);
+                if(contactsFragment!=null){
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            refreshContactListFromServer(contactsFragment.getContactList());
+                            contactsFragment.setMessageView(content);
+                        }
+                    });
+
                 }
             }
 
             @Override
             public void onContactDeleted(String username) {
 
-                String content = String.format("好友 %s 已将您删除",username);
-                //showToast(content);
+                final String content = String.format("好友 %s 已从您联系人列表移除",username);
                 ClientMessageManager.getInstance().addNewMessage("好友信息",content,ClientMessage.Type.FRIEND_CHANGED);
-                if(contactsFragment!=null && currentFragment == 1){
-                    contactsFragment.refresh();
-                    contactsFragment.setMessageView(content);
+                if(contactsFragment!=null){
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            refreshContactListFromServer(contactsFragment.getContactList());
+                            contactsFragment.setMessageView(content);
+                        }
+                    });
+
                 }
             }
 
@@ -166,39 +192,59 @@ public class MainActivity extends FragmentActivity
                 if(!reason.isEmpty()){
                     content = content.concat(String.format(",申请理由:\n%s",reason));
                 }
-                ClientMessageManager.getInstance().addNewMessage("好友请求",content,ClientMessage.Type.FRIEND_REQUEST);
-                if(contactsFragment!=null && currentFragment == 1){
-                    contactsFragment.setMessageView(content);
+                ClientMessageManager.getInstance().addNewMessage("好友请求",content,ClientMessage.Type.FRIEND_REQUEST,username);
+                if(contactsFragment!=null){
+                    final String finalContent = content;
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            contactsFragment.setMessageView(finalContent);
+                        }
+                    });
                 }
             }
 
             @Override
             public void onFriendRequestAccepted(String username) {
-                String content = String.format("%s 已同意您的好友请求",username);
+                final String content = String.format("%s 已同意您的好友请求",username);
                 //showToast(content);
                 ClientMessageManager.getInstance().addNewMessage("好友信息",content,ClientMessage.Type.INFORMATION);
-                if(contactsFragment!=null && currentFragment == 1){
-                    contactsFragment.refresh();
-                    contactsFragment.setMessageView(content);
+                if(contactsFragment!=null){
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            contactsFragment.setMessageView(content);
+                        }
+                    });
                 }
 
             }
 
             @Override
             public void onFriendRequestDeclined(String username) {
-                String content = String.format(" %s 拒绝了你的好友请求",username);
+                final String content = String.format(" %s 拒绝了你的好友请求",username);
                 //showToast(content);
                 ClientMessageManager.getInstance().addNewMessage("好友信息",content,ClientMessage.Type.INFORMATION);
-                if(contactsFragment!=null && currentFragment == 1){
-                    contactsFragment.setMessageView(content);
+                if(contactsFragment!=null){
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            contactsFragment.setMessageView(content);
+                        }
+                    });
                 }
             }
         }
         EMClient.getInstance().contactManager().setContactListener(new MyEMContactListener());
     }
 
-    private boolean switchFragment(int currentFragment,int index)
-    {
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        menu.add(0,MENU_ID_DELETE,1,"删除");
+    }
+
+    private boolean switchFragment(int currentFragment, int index) {
         FragmentTransaction transaction =getSupportFragmentManager().beginTransaction();
         if(currentFragment!=index && fragments.get(index)!=null)
         {
@@ -233,44 +279,37 @@ public class MainActivity extends FragmentActivity
 
     @Override
     public void onChatFragmentStart(final EaseConversationList chatList) {
-        int sizeIgnoreSort = 5; //一个大致的数即可
-        chatList.init(loadChatList(sizeIgnoreSort));
+        refreshChatList(chatSizeIgnoreSort);
+        registerForContextMenu(chatList);
+    }
+
+    @Override
+    public void onChatFragmentResume(EaseConversationList chatList) {
+        refreshChatList(chatSizeIgnoreSort);
+    }
+
+    private void refreshChatList(int sizeIgnoreSort){
+        final EaseConversationList chatList = chatFragment.getChatList();
+        chatList.init(loadChatListFromServer(sizeIgnoreSort));
         chatList.refresh();
         chatList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 EMConversation conversation = chatList.getItem(position);
-                if(conversation.getType() == EMConversation.EMConversationType.Chat){
+                Log.d(TAG, "onItemClick: "+conversation.getType());
+                //if(conversation.getType() == EMConversation.EMConversationType.Chat){
                     String username = conversation.conversationId();
                     EaseUser user = new EaseUser(username);
                     onChatUserClick(user);
-                }
-
-            }
-        });
-        EMClient.getInstance().chatManager().addConversationListener(new EMConversationListener() {
-            @Override
-            public void onCoversationUpdate() {
-                chatList.refresh();
-                chatList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        EMConversation conversation = chatList.getItem(position);
-                        if(conversation.getType() == EMConversation.EMConversationType.Chat){
-                            String username = conversation.conversationId();
-                            EaseUser user = new EaseUser(username);
-                            onChatUserClick(user);
-                        }
-                    }
-                });
+                //}
             }
         });
     }
 
-    private List<EMConversation> loadChatList(int sizeIgnoreSort){
+    private List<EMConversation> loadChatListFromServer(int sizeIgnoreSort){
         Map<String, EMConversation> conversations = EMClient.getInstance().chatManager().getAllConversations();
         List<Pair<Long, EMConversation>> sortList = new ArrayList<>();
-        /**
+        /*
          * lastMsgTime will change if there is new message during sorting
          * so use synchronized to make sure timestamp of last message won't change.
          */
@@ -311,17 +350,30 @@ public class MainActivity extends FragmentActivity
         Intent intent = new Intent(MainActivity.this,ChatActivity.class);
         //intent.putExtra("user",user);
         intent.putExtra("username",user.getUsername());
-        intent.putExtra("chatType",EMMessage.ChatType.Chat);
         startActivity(intent);
     }
 
-    @Override
-    public void onChatUserLongClick(EaseUser user) {
-
-    }
 
     @Override
     public void onContactsFragmentStart(final EaseContactList contactList) {
+        refreshContactListFromServer(contactList);
+        registerForContextMenu(contactList.getListView());
+        contactList.getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                EaseUser user = (EaseUser)contactList.getListView().getItemAtPosition(position);
+                onChatUserClick(user);
+            }
+        });
+        contactList.getListView().setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                return false;
+            }
+        });
+    }
+
+    private void refreshContactListFromServer(final EaseContactList contactList) {
         EMClient.getInstance().contactManager().aysncGetAllContactsFromServer(new EMValueCallBack<List<String>>() {
             @Override
             public void onSuccess(List<String> value) {
@@ -344,19 +396,33 @@ public class MainActivity extends FragmentActivity
 
             }
         });
-        contactList.getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                EaseUser user = (EaseUser)contactList.getListView().getItemAtPosition(position);
-                onChatUserClick(user);
-            }
-        });
     }
 
+    @Override
+    public void onContactsFragmentResume(EaseContactList contactList) {
+        contactsFragment.refreshMessage();
+        refreshContactListFromServer(contactList);
+    }
+
+    @Override
+    public void onContactsFriendDeleteSuccess() {
+        refreshContactListFromServer(contactsFragment.getContactList());
+    }
+
+    @Override
+    public void onContactsFriendDeleteFailure() {
+        showToast("删除失败，请重试");
+    }
+
+    @Override
+    public void onContactsMessageClick() {
+        Intent intent = new Intent(MainActivity.this,MessagesActivity.class);
+        startActivity(intent);
+    }
 
     public void onContactsAddFriend() {
         Intent intent = new Intent(MainActivity.this,AddFriendActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent,REQUEST_CODE_SHOW_USER_MESSAGE);
     }
 
     @Override
@@ -390,6 +456,18 @@ public class MainActivity extends FragmentActivity
                     showToastSafe("注销失败");
                 }
             });
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        switch (requestCode){
+            case REQUEST_CODE_SHOW_USER_MESSAGE:
+                if(resultCode==MessagesActivity.RESULT_CODE_NO_UNREAD_MESSAGE){
+                    if(contactsFragment!=null){
+                        contactsFragment.clearMessageView();
+                    }
+                }
         }
     }
 }

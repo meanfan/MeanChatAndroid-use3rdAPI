@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.exceptions.HyphenateException;
 import com.mean.meanchateasemobapi.R;
+import com.mean.meanchateasemobapi.controller.ClientMessageManager;
 import com.mean.meanchateasemobapi.model.ClientMessage;
 
 import java.text.DateFormat;
@@ -23,7 +24,7 @@ import java.util.List;
 
 public class MessagesRecyclerViewAdapter extends RecyclerView.Adapter<MessagesRecyclerViewAdapter.VH> {
 
-    private List<ClientMessage> messageList = new ArrayList<>();
+    private List<ClientMessage> messageList;
 
     public class VH extends RecyclerView.ViewHolder {
         ImageView iv_dot;
@@ -46,8 +47,7 @@ public class MessagesRecyclerViewAdapter extends RecyclerView.Adapter<MessagesRe
     }
 
     public void updateData(List<ClientMessage> list){
-        messageList.clear();
-        messageList.addAll(list);
+        messageList = list;
     }
 
     @NonNull
@@ -59,8 +59,7 @@ public class MessagesRecyclerViewAdapter extends RecyclerView.Adapter<MessagesRe
 
     @Override
     public void onBindViewHolder(final @NonNull VH vh, int i) {
-        final ClientMessage message = messageList.get(i);
-
+        final ClientMessage message = messageList.get(messageList.size()-1-i);
         if(message.getState() == ClientMessage.State.NOT_READ){
             vh.iv_dot.setVisibility(View.VISIBLE);
         }else {
@@ -83,8 +82,8 @@ public class MessagesRecyclerViewAdapter extends RecyclerView.Adapter<MessagesRe
         vh.ib_close.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                vh.itemView.setVisibility(View.INVISIBLE);
-                //TODO delete message, use interface callback
+                ClientMessageManager.getInstance().deleteMessage(messageList.size()-1-vh.getAdapterPosition());
+                notifyDataSetChanged();
             }
         });
 
@@ -104,6 +103,10 @@ public class MessagesRecyclerViewAdapter extends RecyclerView.Adapter<MessagesRe
                         vh.tv_agree.setText("已同意");
                         vh.tv_refuse.setVisibility(View.INVISIBLE);
                         //TODO update message type , use interface callback
+                        ClientMessageManager.getInstance().markMessageAgree(messageList.size()-1-vh.getAdapterPosition());
+                        message.setType(ClientMessage.Type.FRIEND_REQUEST_AGREED);
+                        message.setState(ClientMessage.State.HAVE_READ);
+                        notifyDataSetChanged();
                         //message.setType(ClientMessage.Type.FRIEND_REQUEST_AGREED);
                     } catch (HyphenateException e) {
                         e.printStackTrace();
@@ -123,6 +126,10 @@ public class MessagesRecyclerViewAdapter extends RecyclerView.Adapter<MessagesRe
                         vh.tv_refuse.setText("已拒绝");
                         vh.tv_agree.setVisibility(View.INVISIBLE);
                         //TODO update message type , use interface callback
+                        ClientMessageManager.getInstance().markMessageRefuse(messageList.size()-1-vh.getAdapterPosition());
+                        message.setType(ClientMessage.Type.FRIEND_REQUEST_REFUSED);
+                        message.setState(ClientMessage.State.HAVE_READ);
+                        notifyDataSetChanged();
                         //message.setType(ClientMessage.Type.FRIEND_REQUEST_REFUSED);
                     } catch (HyphenateException e) {
                         e.printStackTrace();
@@ -142,8 +149,11 @@ public class MessagesRecyclerViewAdapter extends RecyclerView.Adapter<MessagesRe
         }else {                                                                  //其它普通消息
             vh.tv_agree.setVisibility(View.INVISIBLE);
             vh.tv_refuse.setVisibility(View.INVISIBLE);
+            message.setState(ClientMessage.State.HAVE_READ);
         }
     }
+
+
 
     @Override
     public int getItemCount() {
