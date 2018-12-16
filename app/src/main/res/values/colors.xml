@@ -5,4 +5,6 @@
     <color name="colorAccent">#D81B60</color>
 
     <color name="colorTextViewClickableBlue">#3A4CFF</color>
+
+    <color name="black_overlay">#66000000</color>
 </resources>

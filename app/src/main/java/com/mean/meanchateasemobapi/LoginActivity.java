@@ -48,10 +48,6 @@ public class LoginActivity extends AppCompatActivity{
         loginViewList.add(tv_register);
         loginViewList.add(tv_forget);
 
-        if(EMClient.getInstance().isLoggedInBefore()){
-            Intent intent = new Intent(LoginActivity.this,MainActivity.class);
-            startActivity(intent);
-        }
         final Handler handler = new Handler();
         btn_login.setOnClickListener(new View.OnClickListener() {
             void showToastSafe(final String message){
@@ -79,13 +75,13 @@ public class LoginActivity extends AppCompatActivity{
                     public void onSuccess() {
                         showToastSafe("登录成功");
                         Intent intent = new Intent(LoginActivity.this,MainActivity.class);
+                        startActivity(intent);
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
                                 LoginActivity.this.finish();
                             }
                         });
-                        startActivity(intent);
                     }
 
                     @Override
@@ -132,7 +128,6 @@ public class LoginActivity extends AppCompatActivity{
         pb_logining.setVisibility(View.INVISIBLE);
 
     }
-
 
     private void showToast(String msg){
         Toast.makeText(LoginActivity.this,msg,Toast.LENGTH_SHORT).show();
