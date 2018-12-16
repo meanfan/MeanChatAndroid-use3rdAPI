@@ -1,16 +1,24 @@
 package com.mean.meanchateasemobapi;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -24,6 +32,7 @@ import com.hyphenate.chat.EMMessage;
 import com.hyphenate.easeui.EaseConstant;
 import com.hyphenate.easeui.EaseUI;
 import com.hyphenate.easeui.domain.EaseEmojicon;
+import com.hyphenate.easeui.model.EaseCompat;
 import com.hyphenate.easeui.utils.EaseCommonUtils;
 import com.hyphenate.easeui.widget.EaseChatExtendMenu;
 import com.hyphenate.easeui.widget.EaseChatInputMenu;
@@ -31,7 +40,9 @@ import com.hyphenate.easeui.widget.EaseChatMessageList;
 import com.hyphenate.easeui.widget.EaseTitleBar;
 import com.hyphenate.easeui.widget.EaseVoiceRecorderView;
 import com.hyphenate.exceptions.HyphenateException;
+import com.hyphenate.util.PathUtil;
 
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -39,10 +50,15 @@ import java.util.concurrent.Executors;
 public class ChatActivity extends AppCompatActivity  implements EMMessageListener {
     private static final String PERMISSION_NAME_RECORD_AUDIO = Manifest.permission.RECORD_AUDIO;
     private static final int PERMISSION_CHECK_REQUEST_RECORD_AUDIO = 10;
-    private static final int CHAT_INPUT_EXTEND_MENU_PHOTO = Menu.FIRST+1;
-    private static final int CHAT_INPUT_EXTEND_MENU_VIDEO = Menu.FIRST+2;
-    private static final int CHAT_INPUT_EXTEND_MENU_CALL_VOICE = Menu.FIRST+3;
-    private static final int CHAT_INPUT_EXTEND_MENU_CALL_VIDEO = Menu.FIRST+4;
+    private static final int CHAT_INPUT_EXTEND_MENU_CAMERA = Menu.FIRST+1;
+    private static final int CHAT_INPUT_EXTEND_MENU_PHOTO = Menu.FIRST+2;
+    private static final int CHAT_INPUT_EXTEND_MENU_VIDEO = Menu.FIRST+3;
+    private static final int CHAT_INPUT_EXTEND_MENU_CALL_VOICE = Menu.FIRST+4;
+    private static final int CHAT_INPUT_EXTEND_MENU_CALL_VIDEO = Menu.FIRST+5;
+    public static final int REQUEST_CODE_CAMERA = 1;
+    public static final int REQUEST_CODE_PHOTO = 2;
+    public static final int REQUEST_CODE_VIDEO = 3;
+
     private EaseTitleBar titleBar;
     private EaseChatMessageList messageList;
     private EaseChatInputMenu inputMenu;
@@ -53,8 +69,8 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
     private boolean isRoaming = true;
     private int pageSize = 20;
     private boolean isMessageListInited = false;
-
-    Handler handler;
+    private File cameraFile;
+    private Handler handler;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,13 +122,42 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
         EaseChatExtendMenu.EaseChatExtendMenuItemClickListener extendMenuItemClickListener = new EaseChatExtendMenu.EaseChatExtendMenuItemClickListener() {
             @Override
             public void onClick(int itemId, View view) {
-
+                switch (itemId){
+                    case CHAT_INPUT_EXTEND_MENU_CAMERA:
+                        if (!EaseCommonUtils.isSdcardExist()) {
+                            showToast("无法访问存储卡");
+                            return;
+                        }
+                        cameraFile = new File(PathUtil.getInstance().getImagePath(), EMClient.getInstance().getCurrentUser()
+                                + System.currentTimeMillis() + ".jpg");
+                        cameraFile.getParentFile().mkdirs();
+                        startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE).putExtra(MediaStore.EXTRA_OUTPUT,
+                                        EaseCompat.getUriForFile(ChatActivity.this, cameraFile)), REQUEST_CODE_PHOTO);
+                        break;
+                    case CHAT_INPUT_EXTEND_MENU_PHOTO:
+                        Intent intent;
+                        if (Build.VERSION.SDK_INT < 19) {
+                            intent = new Intent(Intent.ACTION_GET_CONTENT);
+                            intent.setType("image/*");
+                        } else {
+                            intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        }
+                        startActivityForResult(intent, REQUEST_CODE_PHOTO);
+                        break;
+                    case CHAT_INPUT_EXTEND_MENU_CALL_VOICE:
+                        //TODO
+                        break;
+                    case CHAT_INPUT_EXTEND_MENU_CALL_VIDEO:
+                        //TODO
+                        break;
+                }
             }
         };
+        inputMenu.registerExtendMenuItem("相机", R.drawable.ic_chat_extend_camera, CHAT_INPUT_EXTEND_MENU_CAMERA, extendMenuItemClickListener);
         inputMenu.registerExtendMenuItem("图片", R.drawable.ic_chat_extend_photo, CHAT_INPUT_EXTEND_MENU_PHOTO, extendMenuItemClickListener);
         inputMenu.registerExtendMenuItem("视频", R.drawable.ic_chat_extend_video, CHAT_INPUT_EXTEND_MENU_VIDEO, extendMenuItemClickListener);
-        inputMenu.registerExtendMenuItem("语音通话", R.drawable.ic_chat_extend_call_voice, CHAT_INPUT_EXTEND_MENU_CALL_VOICE, extendMenuItemClickListener);
-        inputMenu.registerExtendMenuItem("视频通话", R.drawable.ic_chat_extend_call_video, CHAT_INPUT_EXTEND_MENU_CALL_VIDEO, extendMenuItemClickListener);
+        //inputMenu.registerExtendMenuItem("语音通话", R.drawable.ic_chat_extend_call_voice, CHAT_INPUT_EXTEND_MENU_CALL_VOICE, extendMenuItemClickListener);
+        //inputMenu.registerExtendMenuItem("视频通话", R.drawable.ic_chat_extend_call_video, CHAT_INPUT_EXTEND_MENU_CALL_VIDEO, extendMenuItemClickListener);
         inputMenu.init();
         inputMenu.setChatInputMenuListener(new EaseChatInputMenu.ChatInputMenuListener() {
 
@@ -149,6 +194,53 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
                 }
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        switch (requestCode){
+            case REQUEST_CODE_CAMERA: {
+                if (resultCode == Activity.RESULT_OK) {
+                    //TODO
+                }
+                break;
+            }
+            case REQUEST_CODE_PHOTO:
+                if (resultCode == Activity.RESULT_OK) {
+                    if (data != null) {
+                        Uri imageUri = data.getData();
+                        if (imageUri != null) {
+                            String[] filePaths = { MediaStore.Images.Media.DATA };
+                            Cursor cursor = getContentResolver().query(imageUri, filePaths, null, null, null);
+                            if (cursor != null) {
+                                cursor.moveToFirst();
+                                int columnIndex = cursor.getColumnIndex(filePaths[0]);
+                                String picturePath = cursor.getString(columnIndex);
+                                cursor.close();
+                                cursor = null;
+                                if (picturePath == null || picturePath.equals("null")) {
+                                    showToast("无法读取图片");
+                                }else {
+                                    sendImageMessage(picturePath);
+                                }
+                            } else {
+                                File file = new File(imageUri.getPath());
+                                if (!file.exists()) {
+                                    showToast("无法找到图片");
+
+                                }else {
+                                    sendImageMessage(file.getAbsolutePath());
+                                }
+                            }
+                        }
+                    }
+                }
+
+                break;
+            case REQUEST_CODE_VIDEO:
+                //TODO
+                break;
+        }
     }
 
     private boolean checkRecordAudioPermissions(){
@@ -270,10 +362,8 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
         }
     }
 
-    private void sendTextMessage(String content){
-        EMMessage message = EMMessage.createTxtSendMessage(content, toChatUsername);
+    private void sendGeneralMessage(EMMessage message){
         message.setChatType(EMMessage.ChatType.Chat);
-        EMClient.getInstance().chatManager().sendMessage(message);
         message.setMessageStatusCallback(new EMCallBack() {
             @Override
             public void onSuccess() {
@@ -297,6 +387,17 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
                 }
             }
         });
+        EMClient.getInstance().chatManager().sendMessage(message);
+    }
+
+    private void sendTextMessage(String content){
+        EMMessage message = EMMessage.createTxtSendMessage(content, toChatUsername);
+        sendGeneralMessage(message);
+    }
+
+    private void sendImageMessage(String path){
+        EMMessage message = EMMessage.createImageSendMessage(path, false, toChatUsername);
+        sendGeneralMessage(message);
     }
 
     private void sendVoiceMessage(String voiceFilePath, int voiceTimeLength){
