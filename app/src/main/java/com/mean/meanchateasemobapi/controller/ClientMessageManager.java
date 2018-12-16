@@ -104,6 +104,14 @@ public class ClientMessageManager {
         return messages;
     }
 
+    public ClientMessage getLatestMessage(){
+        if(messages.size()>0) {
+            return messages.get(messages.size() - 1);
+        }else {
+            return null;
+        }
+    }
+
     private void loadMessagesLocal(){
 
     }

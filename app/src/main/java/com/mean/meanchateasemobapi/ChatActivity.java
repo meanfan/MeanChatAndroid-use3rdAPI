@@ -324,7 +324,7 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
 
     protected void initConversation(){
         conversation = EMClient.getInstance().chatManager()
-                .getConversation(toChatUsername, EaseCommonUtils.getConversationType(EaseConstant.CHATTYPE_SINGLE), true);
+                .getConversation(toChatUsername, EMConversation.EMConversationType.Chat, true);
         conversation.markAllMessagesAsRead();
         if (!isRoaming) {
             final List<EMMessage> msgs = conversation.getAllMessages();

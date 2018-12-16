@@ -27,6 +27,8 @@ public class ContactsFragment extends Fragment {
     private LinearLayout ll_message;
     private TextView tv_message;
     private ImageView iv_message_dot;
+    private boolean isCreate =false;
+    private String cachedUserMessage;
     private OnContactsFragmentInteractionListener mListener;
 
     public ContactsFragment() {
@@ -57,6 +59,7 @@ public class ContactsFragment extends Fragment {
                 mListener.onContactsMessageClick();
             }
         });
+        isCreate =true;
         return view;
     }
 
@@ -69,6 +72,11 @@ public class ContactsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        if(cachedUserMessage==null){
+            clearMessageView();
+        }else {
+            setMessageView(cachedUserMessage);
+        }
         mListener.onContactsFragmentResume(contactList);
     }
 
@@ -76,6 +84,8 @@ public class ContactsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        isCreate = false;
+        cachedUserMessage = null;
     }
 
     @Override
@@ -96,13 +106,21 @@ public class ContactsFragment extends Fragment {
     }
 
     public void clearMessageView(){
-        tv_message.setText(R.string.message_default);
-        iv_message_dot.setVisibility(View.INVISIBLE);
+        if(isCreate){
+            tv_message.setText(R.string.message_default);
+            iv_message_dot.setVisibility(View.INVISIBLE);
+            cachedUserMessage = null;
+        }
     }
 
     public void setMessageView(String message){
-        tv_message.setText(message);
-        iv_message_dot.setVisibility(View.VISIBLE);
+        if (isCreate){
+            tv_message.setText(message);
+            iv_message_dot.setVisibility(View.VISIBLE);
+        }else{
+            cachedUserMessage = message;
+        }
+
     }
 
     public void setContactsFragmentInteractionListener(OnContactsFragmentInteractionListener mListener) {
@@ -110,6 +128,9 @@ public class ContactsFragment extends Fragment {
     }
 
     public void refreshMessage(){
+        if(!isCreate){
+            return;
+        }
         if(ClientMessageManager.getInstance().isHasUnreadMessage()){
             tv_message.setText(R.string.message_unhandled);
             iv_message_dot.setVisibility(View.VISIBLE);
