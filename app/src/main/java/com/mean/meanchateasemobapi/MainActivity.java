@@ -1,15 +1,22 @@
 package com.mean.meanchateasemobapi;
 
+import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
@@ -27,7 +34,6 @@ import com.hyphenate.EMError;
 import com.hyphenate.EMValueCallBack;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMConversation;
-import com.hyphenate.chat.EMMessage;
 import com.hyphenate.easeui.domain.EaseUser;
 import com.hyphenate.easeui.widget.EaseContactList;
 import com.hyphenate.easeui.widget.EaseConversationList;
@@ -50,7 +56,8 @@ public class MainActivity extends FragmentActivity
         ContactsFragment.OnContactsFragmentInteractionListener,
         MeFragment.OnFragmentInteractionListener{
     public static final String TAG = MainActivity.class.getSimpleName();
-
+    private static final String PERMISSION_NAME_EXTERNAL_STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+    public static final int PERMISSION_CHECK_REQUEST_STORAGE = 10;
     public static final int REQUEST_CODE_SHOW_USER_MESSAGE = 1000;
     public static final int MENU_ID_DELETE = Menu.FIRST+1;
     private EaseTitleBar titleBar;
@@ -236,6 +243,46 @@ public class MainActivity extends FragmentActivity
             }
         }
         EMClient.getInstance().contactManager().setContactListener(new MyEMContactListener());
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        checkStoragePermissions();
+    }
+
+    private void checkStoragePermissions(){
+            if (ContextCompat.checkSelfPermission(this, PERMISSION_NAME_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{PERMISSION_NAME_EXTERNAL_STORAGE},
+                        PERMISSION_CHECK_REQUEST_STORAGE);
+            }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode){
+            case PERMISSION_CHECK_REQUEST_STORAGE:
+                if(grantResults.length == 0 || grantResults[0] == PackageManager.PERMISSION_DENIED){
+                    AlertDialog dialog = new AlertDialog.Builder(this)
+                            .setTitle("提示")
+                            .setMessage("您拒绝了必要权限，应用将无法运行。")
+                            .setPositiveButton("重新授权", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    checkStoragePermissions();
+                                }
+                            })
+                            .setNegativeButton("退出应用", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    finish();
+                                }
+                            }).setCancelable(false).create();
+                    dialog.show();
+                }
+        }
     }
 
     @Override
