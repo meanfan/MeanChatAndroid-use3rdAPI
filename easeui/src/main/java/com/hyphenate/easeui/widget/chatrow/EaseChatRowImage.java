@@ -123,20 +123,21 @@ public class EaseChatRowImage extends EaseChatRowFile{
             imageView.setImageBitmap(bitmap);
         } else {
             imageView.setImageResource(R.drawable.ease_default_image);
-            AsyncTaskCompat.executeParallel( new AsyncTask<Object, Void, Bitmap>() {
-
+            imageView.setImageResource(R.drawable.ease_default_image);
+            class LoadImageTask extends AsyncTask<String,Void,Bitmap>{
+                private String s= "";
                 @Override
-                protected Bitmap doInBackground(Object... args) {
-                    File file = new File(thumbernailPath);
+                protected Bitmap doInBackground(String... params) {
+                    s=params[0];
+                    File file = new File(params[0]);
                     if (file.exists()) {
-                        return EaseImageUtils.decodeScaleImage(thumbernailPath, 160, 160);
+                        return EaseImageUtils.decodeScaleImage(params[0], 160, 160);
                     } else if (new File(imgBody.thumbnailLocalPath()).exists()) {
                         return EaseImageUtils.decodeScaleImage(imgBody.thumbnailLocalPath(), 160, 160);
-                    }
-                    else {
+                    } else {
                         if (message.direct() == EMMessage.Direct.SEND) {
-                            if (localFullSizePath != null && new File(localFullSizePath).exists()) {
-                                return EaseImageUtils.decodeScaleImage(localFullSizePath, 160, 160);
+                            if (params[1] != null && new File(params[1]).exists()) {
+                                return EaseImageUtils.decodeScaleImage(params[2], 160, 160);
                             } else {
                                 return null;
                             }
@@ -149,10 +150,11 @@ public class EaseChatRowImage extends EaseChatRowFile{
                 protected void onPostExecute(Bitmap image) {
                     if (image != null) {
                         imageView.setImageBitmap(image);
-                        EaseImageCache.getInstance().put(thumbernailPath, image);
+                        EaseImageCache.getInstance().put(s, image);
                     }
                 }
-            });
+            }
+            new LoadImageTask().execute(thumbernailPath,localFullSizePath);
         }
     }
 
