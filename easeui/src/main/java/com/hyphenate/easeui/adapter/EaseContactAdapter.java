@@ -42,8 +42,9 @@ public class EaseContactAdapter extends ArrayAdapter<EaseUser> implements Sectio
         super(context, resource, objects);
         this.res = resource;
         this.userList = objects;
-        copyUserList = new ArrayList<EaseUser>();
-        copyUserList.addAll(objects);
+//        copyUserList = new ArrayList<EaseUser>();
+//        copyUserList.addAll(objects);
+        copyUserList = userList;
         layoutInflater = LayoutInflater.from(context);
     }
     
@@ -240,10 +241,10 @@ public class EaseContactAdapter extends ArrayAdapter<EaseUser> implements Sectio
     @Override
     public void notifyDataSetChanged() {
         super.notifyDataSetChanged();
-        if(!notiyfyByFilter){
-            copyUserList.clear();
-            copyUserList.addAll(userList);
-        }
+//        if(!notiyfyByFilter){
+//            copyUserList.clear();
+//            copyUserList.addAll(userList);
+//        }
     }
     
     protected int primaryColor;

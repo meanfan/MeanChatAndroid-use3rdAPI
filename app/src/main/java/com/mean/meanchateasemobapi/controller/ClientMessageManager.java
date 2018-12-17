@@ -1,5 +1,7 @@
 package com.mean.meanchateasemobapi.controller;
 
+import android.util.Log;
+
 import com.mean.meanchateasemobapi.model.ClientMessage;
 
 import java.util.Date;
@@ -7,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ClientMessageManager {
+    private static final String TAG = ClientMessageManager.class.getSimpleName();
     private static volatile ClientMessageManager instance;
     private List<ClientMessage> messages;
 
@@ -52,6 +55,7 @@ public class ClientMessageManager {
     }
 
     public ClientMessage addNewMessage(String title, String context, ClientMessage.Type type,String extra) {
+        Log.d(TAG, "addNewMessage");
         ClientMessage message = new ClientMessage();
         message.setTime(new Date().getTime());
         message.setTitle(title);

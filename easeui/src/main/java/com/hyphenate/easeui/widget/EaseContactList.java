@@ -41,8 +41,8 @@ public class EaseContactList extends RelativeLayout {
             switch (msg.what) {
             case MSG_UPDATE_LIST:
                 if(adapter != null){
-                	adapter.clear();
-                	adapter.addAll(new ArrayList<EaseUser>(contactList));
+//                	adapter.clear();
+//                	adapter.addAll(new ArrayList<EaseUser>(contactList));
                 	adapter.notifyDataSetChanged();	
                 }
                 break;
@@ -94,7 +94,7 @@ public class EaseContactList extends RelativeLayout {
      */
     public void init(List<EaseUser> contactList){
     	this.contactList = contactList;
-        adapter = new EaseContactAdapter(context, 0, new ArrayList<EaseUser>(contactList));
+        adapter = new EaseContactAdapter(context, 0, contactList);
         adapter.setPrimaryColor(primaryColor).setPrimarySize(primarySize).setInitialLetterBg(initialLetterBg)
             .setInitialLetterColor(initialLetterColor);
         listView.setAdapter(adapter);
