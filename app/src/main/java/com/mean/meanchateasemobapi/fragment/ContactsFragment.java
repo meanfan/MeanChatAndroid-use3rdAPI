@@ -80,6 +80,7 @@ public class ContactsFragment extends Fragment {
             }
         });
         handler = new Handler();
+        contactList.setShowSiderBar(false);
         return view;
     }
 
