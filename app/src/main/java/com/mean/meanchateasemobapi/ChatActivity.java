@@ -2,18 +2,21 @@ package com.mean.meanchateasemobapi;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -49,7 +52,9 @@ import java.util.concurrent.Executors;
 
 public class ChatActivity extends AppCompatActivity  implements EMMessageListener {
     private static final String PERMISSION_NAME_RECORD_AUDIO = Manifest.permission.RECORD_AUDIO;
+    private static final String PERMISSION_NAME_CAMERA = Manifest.permission.CAMERA;
     private static final int PERMISSION_CHECK_REQUEST_RECORD_AUDIO = 10;
+    private static final int PERMISSION_CHECK_REQUEST_CAMERA = 11;
     private static final int CHAT_INPUT_EXTEND_MENU_CAMERA = Menu.FIRST+1;
     private static final int CHAT_INPUT_EXTEND_MENU_PHOTO = Menu.FIRST+2;
     private static final int CHAT_INPUT_EXTEND_MENU_VIDEO = Menu.FIRST+3;
@@ -128,21 +133,29 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
                             showToast("无法访问存储卡");
                             return;
                         }
-                        cameraFile = new File(PathUtil.getInstance().getImagePath(), EMClient.getInstance().getCurrentUser()
-                                + System.currentTimeMillis() + ".jpg");
+                        File imagePath = new File(getFilesDir(), "images");
+                        cameraFile = new File(imagePath, EMClient.getInstance().getCurrentUser() + System.currentTimeMillis() + ".jpg");
                         cameraFile.getParentFile().mkdirs();
-                        startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE).putExtra(MediaStore.EXTRA_OUTPUT,
-                                        EaseCompat.getUriForFile(ChatActivity.this, cameraFile)), REQUEST_CODE_PHOTO);
+                        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+                            intent.putExtra(MediaStore.EXTRA_OUTPUT,
+                                    FileProvider.getUriForFile(ChatActivity.this,getPackageName()+".fileprovider", cameraFile));
+                        }else {
+                            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(cameraFile));
+                        }
+                        if(checkCameraPermissions()) {
+                            startActivityForResult(intent, REQUEST_CODE_CAMERA);
+                        }
                         break;
                     case CHAT_INPUT_EXTEND_MENU_PHOTO:
-                        Intent intent;
+                        Intent intent1;
                         if (Build.VERSION.SDK_INT < 19) {
-                            intent = new Intent(Intent.ACTION_GET_CONTENT);
-                            intent.setType("image/*");
+                            intent1 = new Intent(Intent.ACTION_GET_CONTENT);
+                            intent1.setType("image/*");
                         } else {
-                            intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                            intent1 = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                         }
-                        startActivityForResult(intent, REQUEST_CODE_PHOTO);
+                        startActivityForResult(intent1, REQUEST_CODE_PHOTO);
                         break;
                     case CHAT_INPUT_EXTEND_MENU_CALL_VOICE:
                         //TODO
@@ -155,7 +168,7 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
         };
         inputMenu.registerExtendMenuItem("相机", R.drawable.ic_chat_extend_camera, CHAT_INPUT_EXTEND_MENU_CAMERA, extendMenuItemClickListener);
         inputMenu.registerExtendMenuItem("图片", R.drawable.ic_chat_extend_photo, CHAT_INPUT_EXTEND_MENU_PHOTO, extendMenuItemClickListener);
-        inputMenu.registerExtendMenuItem("视频", R.drawable.ic_chat_extend_video, CHAT_INPUT_EXTEND_MENU_VIDEO, extendMenuItemClickListener);
+        //inputMenu.registerExtendMenuItem("视频", R.drawable.ic_chat_extend_video, CHAT_INPUT_EXTEND_MENU_VIDEO, extendMenuItemClickListener);
         //inputMenu.registerExtendMenuItem("语音通话", R.drawable.ic_chat_extend_call_voice, CHAT_INPUT_EXTEND_MENU_CALL_VOICE, extendMenuItemClickListener);
         //inputMenu.registerExtendMenuItem("视频通话", R.drawable.ic_chat_extend_call_video, CHAT_INPUT_EXTEND_MENU_CALL_VIDEO, extendMenuItemClickListener);
         inputMenu.init();
@@ -201,7 +214,8 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
         switch (requestCode){
             case REQUEST_CODE_CAMERA: {
                 if (resultCode == Activity.RESULT_OK) {
-                    //TODO
+                    if(cameraFile != null && cameraFile.exists())
+                    sendImageMessage(cameraFile.getAbsolutePath());
                 }
                 break;
             }
@@ -254,6 +268,17 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
         return true;
     }
 
+    private boolean checkCameraPermissions(){
+        if (ContextCompat.checkSelfPermission(this, PERMISSION_NAME_CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{PERMISSION_NAME_CAMERA},
+                    PERMISSION_CHECK_REQUEST_CAMERA);
+            return false;
+        }
+        return true;
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode){
@@ -276,6 +301,27 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
                             }).setCancelable(false).create();
                     dialog.show();
                 }
+                break;
+            case PERMISSION_CHECK_REQUEST_CAMERA:
+                if(grantResults.length == 0 || grantResults[0] == PackageManager.PERMISSION_DENIED){
+                    AlertDialog dialog = new AlertDialog.Builder(this)
+                            .setTitle("提示")
+                            .setMessage("您拒绝了相机权限，无法拍摄图片。")
+                            .setPositiveButton("重新授权", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    checkCameraPermissions();
+                                }
+                            })
+                            .setNegativeButton("确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            }).setCancelable(false).create();
+                    dialog.show();
+                }
+                break;
         }
     }
 
