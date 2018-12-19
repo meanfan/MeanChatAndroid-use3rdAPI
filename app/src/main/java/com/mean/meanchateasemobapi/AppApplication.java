@@ -1,17 +1,23 @@
 package com.mean.meanchateasemobapi;
 
 
+import android.app.Activity;
 import android.app.Application;
+import android.os.Bundle;
+
 import com.hyphenate.easeui.EaseUI;
 
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMOptions;
 
 public class AppApplication extends Application {
+    private volatile Activity currentActivity;
+    public static Application instance;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = this;
         // EMClient初始化
         EMOptions options = new EMOptions();
         // 默认添加好友时，是不需要验证的，改成需要验证
@@ -28,6 +34,52 @@ public class AppApplication extends Application {
         EMOptions uiOption = new EMOptions();
         uiOption.setAcceptInvitationAlways(false); //开启好友验证
         EaseUI.getInstance().init(this,uiOption);
+
+        registerActivityLifecycleCallbacks(new MyActivityLifecycleCallbacks());
     }
 
+    public Activity getCurrentActivity() {
+        return currentActivity;
+    }
+
+    public void setCurrentActivity(Activity currentActivity) {
+        this.currentActivity = currentActivity;
+    }
+
+    class MyActivityLifecycleCallbacks implements ActivityLifecycleCallbacks{
+        @Override
+        public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+
+        }
+
+        @Override
+        public void onActivityStarted(Activity activity) {
+
+        }
+
+        @Override
+        public void onActivityResumed(Activity activity) {
+            setCurrentActivity(activity);
+        }
+
+        @Override
+        public void onActivityPaused(Activity activity) {
+            setCurrentActivity(null);
+        }
+
+        @Override
+        public void onActivityStopped(Activity activity) {
+
+        }
+
+        @Override
+        public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+
+        }
+
+        @Override
+        public void onActivityDestroyed(Activity activity) {
+
+        }
+    }
 }
