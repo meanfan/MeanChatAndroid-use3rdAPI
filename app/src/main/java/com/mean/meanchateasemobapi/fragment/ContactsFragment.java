@@ -1,5 +1,6 @@
 package com.mean.meanchateasemobapi.fragment;
 
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 import com.hyphenate.EMContactListener;
 import com.hyphenate.EMValueCallBack;
 import com.hyphenate.chat.EMClient;
+import com.hyphenate.easeui.adapter.EaseContactAdapter;
 import com.hyphenate.easeui.domain.EaseUser;
 import com.hyphenate.easeui.utils.EaseCommonUtils;
 import com.hyphenate.easeui.widget.EaseContactList;
@@ -80,7 +82,6 @@ public class ContactsFragment extends Fragment {
             }
         });
         handler = new Handler();
-        contactList.setShowSiderBar(false);
         return view;
     }
 
@@ -90,6 +91,9 @@ public class ContactsFragment extends Fragment {
         easeUsers = new ArrayList<>();
         refreshContactListFromServer();
         contactList.init(easeUsers);
+        contactList.setShowSiderBar(false);
+        ((EaseContactAdapter)contactList.getListView().getAdapter()).setInitialLetterBg(
+                new ColorDrawable(getResources().getColor(R.color.initial_letter_bg)));
         isContactListInit = true;
         contactList.getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

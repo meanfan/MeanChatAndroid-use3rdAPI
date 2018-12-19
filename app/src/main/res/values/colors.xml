@@ -3,6 +3,7 @@
     <color name="colorPrimary">#1296db</color>
     <color name="colorPrimaryDark">#2398db</color>
     <color name="colorAccent">#D81B60</color>
+    <color name="initial_letter_bg">#ebebeb</color>
 
     <color name="colorTextViewClickableBlue">#3A4CFF</color>
 

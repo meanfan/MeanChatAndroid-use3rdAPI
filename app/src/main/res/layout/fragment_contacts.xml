@@ -8,12 +8,20 @@
     <LinearLayout
         android:id="@+id/ll_message"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:orientation="horizontal">
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/ic_notification"/>
         <TextView
             android:id="@+id/tv_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:text="消息"
             android:textSize="20sp"/>
         <ImageView
@@ -22,7 +30,18 @@
             android:layout_height="10dp"
             android:layout_gravity="center_vertical"
             android:src="@drawable/unread_dot_red"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:gravity="right|center_vertical"
+            android:layout_marginRight="30dp"
+            android:text=">"/>
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/voip_interface_text_color"/>
     <com.hyphenate.easeui.widget.EaseContactList
         android:id="@+id/contact_list"
         android:layout_width="match_parent"
