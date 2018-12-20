@@ -196,7 +196,7 @@ public class CallActivity extends AppCompatActivity implements View.OnClickListe
                 if (grantResults.length == 0 || grantResults[0] == PackageManager.PERMISSION_DENIED) {
                     AlertDialog dialog = new AlertDialog.Builder(this)
                             .setTitle(R.string.dialog_title_notice)
-                            .setMessage("拒绝录音权限将无法通话")
+                            .setMessage(getString(R.string.call_message_permission_record_voice_denied))
                             .setPositiveButton(getString(R.string.dialog_button_grant_permission), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
