@@ -88,7 +88,7 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
                 AlertDialog dialog = new AlertDialog.Builder(ChatActivity.this)
                         .setTitle(R.string.dialog_title_notice)
                         .setMessage(getString(R.string.dialog_delete_chat_history_confirm_message))
-                        .setNegativeButton(getString(R.string.btn_confirm), new DialogInterface.OnClickListener() {
+                        .setPositiveButton(getString(R.string.btn_confirm), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 EMClient.getInstance().chatManager().getConversation(conversation.conversationId()).clearAllMessages();
@@ -96,7 +96,7 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
                                 showToast(getString(R.string.chat_message_history_deleted));
                             }
                         })
-                        .setPositiveButton(getString(R.string.btn_cancel), new DialogInterface.OnClickListener() {
+                        .setNegativeButton(getString(R.string.btn_cancel), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 //do nothing
