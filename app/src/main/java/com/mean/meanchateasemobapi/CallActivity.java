@@ -1,5 +1,9 @@
 package com.mean.meanchateasemobapi;
 
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +17,7 @@ import com.hyphenate.chat.EMCallStateChangeListener;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.exceptions.EMNoActiveCallException;
 import com.mean.meanchateasemobapi.broadcast.CallReceiver;
+import com.mean.meanchateasemobapi.util.PermissionChecker;
 import com.mean.meanchateasemobapi.view.CircleImageView;
 
 import java.util.Timer;
@@ -137,6 +142,7 @@ public class CallActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
+        PermissionChecker.checkRecordAudioPermission(this);
     }
 
     @Override
@@ -183,6 +189,33 @@ public class CallActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PermissionChecker.PERMISSION_CHECK_REQUEST_RECORD_AUDIO:
+                if (grantResults.length == 0 || grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                    AlertDialog dialog = new AlertDialog.Builder(this)
+                            .setTitle(R.string.dialog_title_notice)
+                            .setMessage("拒绝录音权限将无法通话")
+                            .setPositiveButton(getString(R.string.dialog_button_grant_permission), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    PermissionChecker.checkRecordAudioPermission(CallActivity.this);
+                                }
+                            })
+                            .setNegativeButton(getString(R.string.btn_confirm), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    ibHangup.performClick(); //用户坚决不给录音权限则挂断
+                                }
+                            }).setCancelable(false).create();
+                    dialog.show();
+                } else {
+                    //do nothing
+                }
+                break;
+        }
+    }
 
     private void errorQuit(){
         //TODO EndActivity
