@@ -66,6 +66,8 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
     private boolean isRoaming = true;
     private int pageSize = 20;
     private boolean isMessageListInited = false;
+    private boolean isTrying2MakeVoiceCall = false; //录音权限授予前是否是由发起通话触发的
+    private boolean isTring2CallCamera = false;
     private File cameraFile;
     private Handler handler;
     @Override
@@ -122,21 +124,9 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
                 switch (itemId) {
                     case CHAT_INPUT_EXTEND_MENU_CAMERA:
                         if (PermissionChecker.checkCameraPermission(ChatActivity.this)) {
-                            if (!EaseCommonUtils.isSdcardExist()) {
-                                showToast(getString(R.string.chat_message_permission_storage_denied));
-                                return;
-                            }
-                            File imagePath = new File(getFilesDir(), "images");
-                            cameraFile = new File(imagePath, EMClient.getInstance().getCurrentUser() + System.currentTimeMillis() + ".jpg");
-                            cameraFile.getParentFile().mkdirs();
-                            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                intent.putExtra(MediaStore.EXTRA_OUTPUT,
-                                        FileProvider.getUriForFile(ChatActivity.this, getPackageName() + ".fileprovider", cameraFile));
-                            } else {
-                                intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(cameraFile));
-                            }
-                            startActivityForResult(intent, REQUEST_CODE_CAMERA);
+                            takePhoto();
+                        }else {
+                            isTring2CallCamera = true;
                         }
                         break;
                     case CHAT_INPUT_EXTEND_MENU_PHOTO:
@@ -151,15 +141,8 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
                         break;
                     case CHAT_INPUT_EXTEND_MENU_CALL_VOICE:
                         if(PermissionChecker.checkRecordAudioPermission(ChatActivity.this)) {
-                            try {
-                                EMClient.getInstance().callManager().makeVoiceCall(toChatUsername);
-                                Intent intent2 = new Intent(ChatActivity.this, CallActivity.class);
-                                intent2.putExtra(CallReceiver.INTENT_EXTRA_FROM, EMClient.getInstance().getCurrentUser());
-                                intent2.putExtra(CallReceiver.INTENT_EXTRA_TYPE, EMCallSession.Type.VOICE);
-                                startActivity(intent2);
-                            } catch (EMServiceNotReadyException e) {
-                                e.printStackTrace();
-                            }
+                            isTrying2MakeVoiceCall = true;
+                            makeVoiceCall();
                         }
                         break;
                     case CHAT_INPUT_EXTEND_MENU_CALL_VIDEO:
@@ -209,6 +192,36 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
                 }
             }
         });
+    }
+
+    private void takePhoto() {
+        if (!EaseCommonUtils.isSdcardExist()) {
+            showToast(getString(R.string.chat_message_permission_storage_denied));
+            return;
+        }
+        File imagePath = new File(getFilesDir(), "images");
+        cameraFile = new File(imagePath, EMClient.getInstance().getCurrentUser() + System.currentTimeMillis() + ".jpg");
+        cameraFile.getParentFile().mkdirs();
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            intent.putExtra(MediaStore.EXTRA_OUTPUT,
+                    FileProvider.getUriForFile(ChatActivity.this, getPackageName() + ".fileprovider", cameraFile));
+        } else {
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(cameraFile));
+        }
+        startActivityForResult(intent, REQUEST_CODE_CAMERA);
+    }
+
+    private void makeVoiceCall(){
+        try {
+            EMClient.getInstance().callManager().makeVoiceCall(toChatUsername);
+            Intent intent2 = new Intent(ChatActivity.this, CallActivity.class);
+            intent2.putExtra(CallReceiver.INTENT_EXTRA_FROM, EMClient.getInstance().getCurrentUser());
+            intent2.putExtra(CallReceiver.INTENT_EXTRA_TYPE, EMCallSession.Type.VOICE);
+            startActivity(intent2);
+        } catch (EMServiceNotReadyException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -282,6 +295,11 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
                                 }
                             }).setCancelable(false).create();
                     dialog.show();
+                }else {
+                    if(isTrying2MakeVoiceCall){
+                        makeVoiceCall();
+                        isTrying2MakeVoiceCall = false;
+                    }
                 }
                 break;
             case PermissionChecker.PERMISSION_CHECK_REQUEST_CAMERA:
@@ -302,6 +320,11 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
                                 }
                             }).setCancelable(false).create();
                     dialog.show();
+                }else {
+                    if(isTring2CallCamera){
+                        takePhoto();
+                        isTring2CallCamera = false;
+                    }
                 }
                 break;
         }
