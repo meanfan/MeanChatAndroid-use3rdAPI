@@ -15,25 +15,27 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
+        android:hint="用户名"
         android:inputType="textNoSuggestions"
-        android:hint="Username"
-        android:text="@string/test_user_name"/>
+        android:text="@string/test_user_name" />
+
     <EditText
         android:id="@+id/et_password"
-        android:inputType="textPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:hint="Password"
-        android:text="@string/test_user_password"/>
+        android:hint="密码"
+        android:inputType="textPassword"
+        android:text="@string/test_user_password" />
+
     <EditText
         android:id="@+id/et_password_repeat"
-        android:inputType="textPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:hint="Password Repeat"
-        android:text="@string/test_user_password"/>
+        android:hint="再次输入密码"
+        android:inputType="textPassword"
+        android:text="@string/test_user_password" />
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -41,22 +43,24 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
             <Button
                 android:id="@+id/btn_register"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_margin="10dp"
-                android:text="Register"
-                android:textAllCaps="false"/>
+                android:text="注册"
+                android:textAllCaps="false" />
+
             <TextView
                 android:id="@+id/tv_login"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_margin="10dp"
-                android:textColor="@color/colorTextViewClickableBlue"
-                android:text="already have account?"/>
+                android:text="已经注册？"
+                android:textColor="@color/colorTextViewClickableBlue" />
         </LinearLayout>
         <ProgressBar
             android:id="@+id/pb_register"

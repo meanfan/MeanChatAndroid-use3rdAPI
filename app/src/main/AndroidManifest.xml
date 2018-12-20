@@ -75,7 +75,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity" android:launchMode="singleTask" />
-        <activity android:name=".LoginActivity" android:launchMode="singleTask"/>
+        <activity android:name=".LoginActivity"/>
         <activity android:name=".ChatActivity" android:launchMode="singleTask" />
         <activity android:name=".RegisterActivity" />
         <activity android:name=".AddFriendActivity" />

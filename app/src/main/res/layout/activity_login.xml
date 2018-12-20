@@ -15,61 +15,42 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:hint="Username"
-        android:text="@string/test_user_name"/>
+        android:hint="用户名"
+        android:text="@string/test_user_name" />
+
     <EditText
         android:id="@+id/et_password"
-        android:inputType="textPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:hint="Password"
-        android:text="@string/test_user_password"/>
+        android:hint="密码"
+        android:inputType="textPassword"
+        android:text="@string/test_user_password" />
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <CheckBox
-                    android:id="@+id/cb_remember"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_margin="10dp"
-                    android:text="Remember Me"/>
+            android:layout_height="wrap_content">
                 <Button
                     android:id="@+id/btn_login"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
+                    android:layout_centerInParent="true"
                     android:layout_margin="10dp"
-                    android:text="Login"
-                    android:textAllCaps="false"/>
+                    android:text="登录"
+                    android:textAllCaps="false" />
                 <TextView
                     android:id="@+id/tv_register"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:padding="10dp"
+                    android:layout_toRightOf="@id/btn_login"
+                    android:layout_centerVertical="true"
                     android:gravity="center"
-                    android:textColor="@color/colorTextViewClickableBlue"
-                    android:text="Register"/>
-            </LinearLayout>
-            <TextView
-                android:id="@+id/tv_forget"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_margin="10dp"
-                android:textColor="@color/colorTextViewClickableBlue"
-                android:text="Forget Password?"/>
-        </LinearLayout>
+                    android:padding="10dp"
+                    android:text="注册"
+                    android:textColor="@color/colorTextViewClickableBlue" />
+        </RelativeLayout>
         <ProgressBar
             android:id="@+id/pb_logining"
             android:layout_width="wrap_content"

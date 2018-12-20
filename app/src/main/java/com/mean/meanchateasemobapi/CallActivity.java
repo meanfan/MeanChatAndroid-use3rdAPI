@@ -51,7 +51,7 @@ public class CallActivity extends AppCompatActivity implements View.OnClickListe
         ibHangup.setOnClickListener(this);
         ibAnswer = findViewById(R.id.ib_answer);
         ibAnswer.setOnClickListener(this);
-        tvStatus.setText("连接中");
+        tvStatus.setText(getString(R.string.call_message_connecting));
         if(isCallRequester){
             ibHangup.setVisibility(View.VISIBLE);
             ibAnswer.setVisibility(View.GONE); //主叫不显示接听按钮
@@ -78,7 +78,7 @@ public class CallActivity extends AppCompatActivity implements View.OnClickListe
                                     ibHangup.setVisibility(View.VISIBLE);
                                     ibAnswer.setVisibility(View.VISIBLE);
                                 }
-                                tvStatus.setText("连接中");
+                                tvStatus.setText(getString(R.string.call_message_connecting));
                             }
                         });
                         break;
@@ -86,7 +86,7 @@ public class CallActivity extends AppCompatActivity implements View.OnClickListe
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                tvStatus.setText("连接成功，等待对方同意");
+                                tvStatus.setText(getString(R.string.call_message_connect_success));
                             }
                         });
                         break;
@@ -97,8 +97,8 @@ public class CallActivity extends AppCompatActivity implements View.OnClickListe
                             public void run() {
                                 ibAnswer.setVisibility(View.GONE);
                                 ibHangup.setVisibility(View.VISIBLE);
-                                tvStatus.setText("通话中");
-                                showToast("通话已建立");
+                                tvStatus.setText(getString(R.string.call_message_answering));
+                                showToast(getString(R.string.call_message_connected));
                             }
                         });
                         break;
@@ -106,10 +106,10 @@ public class CallActivity extends AppCompatActivity implements View.OnClickListe
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                tvStatus.setText("通话结束");
+                                tvStatus.setText(getString(R.string.call_message_disconnect));
                                 ibHangup.setVisibility(View.GONE);
                                 ibAnswer.setVisibility(View.GONE);
-                                showToast("通话结束");
+                                showToast(getString(R.string.call_message_disconnect));
                             }
                         });
                         Timer timer = new Timer();
@@ -186,7 +186,7 @@ public class CallActivity extends AppCompatActivity implements View.OnClickListe
 
     private void errorQuit(){
         //TODO EndActivity
-        showToast("出现错误，会话关闭");
+        showToast(getString(R.string.call_message_error));
         finish();
     }
 

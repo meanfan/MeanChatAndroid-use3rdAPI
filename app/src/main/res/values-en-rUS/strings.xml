@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MeanChat</string>
+    <string name="login_message_empty">username or password can\'t be empty</string>
+    <string name="register_message_input_empty">username or password can\'t be empty</string>
+    <string name="title_chat">Chat</string>
+    <string name="title_contacts">Contacts</string>
+    <string name="title_me">Me</string>
+    <string name="title_activity_login">Login</string>
+    <string name="message_default">Message</string>
+    <string name="message_unhandled">Unhandled Message</string>
+    <string name="title_activity_splash">Meanchat Launching</string>
+    <string name="register_message_two_password_not_match">two passwords not match</string>
+    <string name="register_message_success">register success</string>
+    <string name="register_message_failure">register failure, please retry</string>
+    <string name="login_message_success">login success</string>
+    <string name="login_message_error">login failure</string>
+</resources>

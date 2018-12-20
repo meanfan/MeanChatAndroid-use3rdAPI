@@ -86,17 +86,17 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
             @Override
             public void onClick(View v) {
                 AlertDialog dialog = new AlertDialog.Builder(ChatActivity.this)
-                        .setTitle("提示")
-                        .setMessage("确定清除聊天记录么？\n删除后无法恢复。")
-                        .setNegativeButton("确定", new DialogInterface.OnClickListener() {
+                        .setTitle(R.string.dialog_title_notice)
+                        .setMessage(getString(R.string.dialog_delete_chat_history_confirm_message))
+                        .setNegativeButton(getString(R.string.btn_confirm), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 EMClient.getInstance().chatManager().getConversation(conversation.conversationId()).clearAllMessages();
                                 messageList.refresh();
-                                showToast("聊天记录已清除");
+                                showToast(getString(R.string.chat_message_history_deleted));
                             }
                         })
-                        .setPositiveButton("取消", new DialogInterface.OnClickListener() {
+                        .setPositiveButton(getString(R.string.btn_cancel), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 //do nothing
@@ -123,7 +123,7 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
                     case CHAT_INPUT_EXTEND_MENU_CAMERA:
                         if (PermissionChecker.checkCameraPermission(ChatActivity.this)) {
                             if (!EaseCommonUtils.isSdcardExist()) {
-                                showToast("无法访问存储卡");
+                                showToast(getString(R.string.chat_message_permission_storage_denied));
                                 return;
                             }
                             File imagePath = new File(getFilesDir(), "images");
@@ -168,11 +168,11 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
                 }
             }
         };
-        inputMenu.registerExtendMenuItem("相机", R.drawable.ic_chat_extend_camera, CHAT_INPUT_EXTEND_MENU_CAMERA, extendMenuItemClickListener);
-        inputMenu.registerExtendMenuItem("图片", R.drawable.ic_chat_extend_photo, CHAT_INPUT_EXTEND_MENU_PHOTO, extendMenuItemClickListener);
-        //inputMenu.registerExtendMenuItem("视频", R.drawable.ic_chat_extend_video, CHAT_INPUT_EXTEND_MENU_VIDEO, extendMenuItemClickListener);
-        inputMenu.registerExtendMenuItem("语音通话", R.drawable.ic_chat_extend_call_voice, CHAT_INPUT_EXTEND_MENU_CALL_VOICE, extendMenuItemClickListener);
-        //inputMenu.registerExtendMenuItem("视频通话", R.drawable.ic_chat_extend_call_video, CHAT_INPUT_EXTEND_MENU_CALL_VIDEO, extendMenuItemClickListener);
+        inputMenu.registerExtendMenuItem(R.string.chat_input_extend_menu_item_camera, R.drawable.ic_chat_extend_camera, CHAT_INPUT_EXTEND_MENU_CAMERA, extendMenuItemClickListener);
+        inputMenu.registerExtendMenuItem(R.string.chat_input_extend_menu_item_picture, R.drawable.ic_chat_extend_photo, CHAT_INPUT_EXTEND_MENU_PHOTO, extendMenuItemClickListener);
+        //inputMenu.registerExtendMenuItem(R.string.chat_input_extend_menu_item_video, R.drawable.ic_chat_extend_video, CHAT_INPUT_EXTEND_MENU_VIDEO, extendMenuItemClickListener);
+        inputMenu.registerExtendMenuItem(R.string.chat_input_extend_menu_item_voice_call, R.drawable.ic_chat_extend_call_voice, CHAT_INPUT_EXTEND_MENU_CALL_VOICE, extendMenuItemClickListener);
+        //inputMenu.registerExtendMenuItem(R.string.chat_input_extend_menu_item_video_call, R.drawable.ic_chat_extend_call_video, CHAT_INPUT_EXTEND_MENU_CALL_VIDEO, extendMenuItemClickListener);
         inputMenu.init();
         inputMenu.setChatInputMenuListener(new EaseChatInputMenu.ChatInputMenuListener() {
 
@@ -235,14 +235,14 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
                                 cursor.close();
                                 cursor = null;
                                 if (picturePath == null || picturePath.equals("null")) {
-                                    showToast("无法读取图片");
+                                    showToast(getString(R.string.chat_message_picture_read_failure));
                                 }else {
                                     sendImageMessage(picturePath);
                                 }
                             } else {
                                 File file = new File(imageUri.getPath());
                                 if (!file.exists()) {
-                                    showToast("无法找到图片");
+                                    showToast(getString(R.string.chat_message_picture_not_found));
 
                                 }else {
                                     sendImageMessage(file.getAbsolutePath());
@@ -267,15 +267,15 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
             case PermissionChecker.PERMISSION_CHECK_REQUEST_RECORD_AUDIO:
                 if(grantResults.length == 0 || grantResults[0] == PackageManager.PERMISSION_DENIED){
                     AlertDialog dialog = new AlertDialog.Builder(this)
-                            .setTitle("提示")
-                            .setMessage("您拒绝了录音权限，无法发送音频信息。")
-                            .setPositiveButton("重新授权", new DialogInterface.OnClickListener() {
+                            .setTitle(R.string.dialog_title_notice)
+                            .setMessage(getString(R.string.chat_message_permission_record_voice_denied))
+                            .setPositiveButton(getString(R.string.dialog_button_grant_permission), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     PermissionChecker.checkRecordAudioPermission(ChatActivity.this);
                                 }
                             })
-                            .setNegativeButton("确定", new DialogInterface.OnClickListener() {
+                            .setNegativeButton(getString(R.string.btn_confirm), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
 
@@ -287,15 +287,15 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
             case PermissionChecker.PERMISSION_CHECK_REQUEST_CAMERA:
                 if(grantResults.length == 0 || grantResults[0] == PackageManager.PERMISSION_DENIED){
                     AlertDialog dialog = new AlertDialog.Builder(this)
-                            .setTitle("提示")
-                            .setMessage("您拒绝了相机权限，无法拍摄图片。")
-                            .setPositiveButton("重新授权", new DialogInterface.OnClickListener() {
+                            .setTitle(R.string.dialog_title_notice)
+                            .setMessage(getString(R.string.chat_message_permission_camera_denied))
+                            .setPositiveButton(getString(R.string.dialog_button_grant_permission), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     PermissionChecker.checkCameraPermission(ChatActivity.this);
                                 }
                             })
-                            .setNegativeButton("确定", new DialogInterface.OnClickListener() {
+                            .setNegativeButton(getString(R.string.btn_confirm), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
 
@@ -402,7 +402,7 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
 
             @Override
             public void onError(int code, String error) {
-                showToast("消息发送出错：("+code+")"+error);
+                showToast(getString(R.string.chat_message_send_error)+"：("+code+")"+error);
                 if(isMessageListInited) {
                     messageList.refresh();
                 }

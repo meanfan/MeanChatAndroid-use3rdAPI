@@ -20,6 +20,7 @@ import java.util.List;
 
 public class RegisterActivity extends AppCompatActivity{
     public static final String TAG = "RegisterActivity";
+    public static final String RESULT_INTENT_EXTRA_USERNAME = "username";
 
     private TextView et_username;
     private TextView et_password,et_password_repeat;
@@ -61,11 +62,11 @@ public class RegisterActivity extends AppCompatActivity{
                 final String password = et_password.getText().toString();
                 String passwordRepeat = et_password_repeat.getText().toString();
                 if(username.isEmpty() || password.isEmpty()) {
-                    showToast("username or password can't be empty");
+                    showToast(getString(R.string.register_message_input_empty));
                     return;
                 }
                 if(!passwordRepeat.equals(password)){
-                    showToast("2 passwords inputted not match");
+                    showToast(getString(R.string.register_message_two_password_not_match));
                     return;
                 }
                 et_username.setEnabled(false);
@@ -77,10 +78,13 @@ public class RegisterActivity extends AppCompatActivity{
                     public void run() {
                         try {
                             EMClient.getInstance().createAccount(username,password);
-                            showToastSafe("注册成功");
+                            showToastSafe(getString(R.string.register_message_success));
+                            Intent intent = new Intent();
+                            intent.putExtra(RESULT_INTENT_EXTRA_USERNAME,username);
+                            setResult(RESULT_OK,intent);
                             finish();
                         } catch (HyphenateException e) {
-                            showToastSafe("注册失败，请重试");
+                            showToastSafe(getString(R.string.register_message_failure));
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
@@ -90,6 +94,13 @@ public class RegisterActivity extends AppCompatActivity{
                         }
                     }
                 }).start();
+            }
+        });
+        tv_login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setResult(RESULT_CANCELED);
+                finish();
             }
         });
     }

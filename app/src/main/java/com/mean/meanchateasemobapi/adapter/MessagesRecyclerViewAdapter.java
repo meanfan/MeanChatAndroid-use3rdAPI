@@ -100,7 +100,7 @@ public class MessagesRecyclerViewAdapter extends RecyclerView.Adapter<MessagesRe
                         EMClient.getInstance().contactManager().acceptInvitation(message.getExtra());
                         vh.tv_agree.setVisibility(View.VISIBLE);
                         vh.tv_agree.setClickable(false);
-                        vh.tv_agree.setText("已同意");
+                        vh.tv_agree.setText(R.string.view_message_list_agreed);
                         vh.tv_refuse.setVisibility(View.INVISIBLE);
                         //TODO update message type , use interface callback
                         ClientMessageManager.getInstance().markMessageAgree(messageList.size()-1-vh.getAdapterPosition());
@@ -123,7 +123,7 @@ public class MessagesRecyclerViewAdapter extends RecyclerView.Adapter<MessagesRe
                         EMClient.getInstance().contactManager().declineInvitation(message.getExtra());
                         vh.tv_refuse.setVisibility(View.VISIBLE);
                         vh.tv_refuse.setClickable(false);
-                        vh.tv_refuse.setText("已拒绝");
+                        vh.tv_refuse.setText(R.string.view_message_list_denied);
                         vh.tv_agree.setVisibility(View.INVISIBLE);
                         //TODO update message type , use interface callback
                         ClientMessageManager.getInstance().markMessageRefuse(messageList.size()-1-vh.getAdapterPosition());
@@ -139,12 +139,12 @@ public class MessagesRecyclerViewAdapter extends RecyclerView.Adapter<MessagesRe
         }else if(message.getType() == ClientMessage.Type.FRIEND_REQUEST_AGREED) { //已同意的好友请求
             vh.tv_agree.setVisibility(View.VISIBLE);
             vh.tv_agree.setClickable(false);
-            vh.tv_agree.setText("已同意");
+            vh.tv_agree.setText(R.string.view_message_list_agreed);
             vh.tv_refuse.setVisibility(View.INVISIBLE);
         }else if(message.getType() == ClientMessage.Type.FRIEND_REQUEST_REFUSED){ //已拒绝的好友请求
             vh.tv_refuse.setVisibility(View.VISIBLE);
             vh.tv_refuse.setClickable(false);
-            vh.tv_refuse.setText("已拒绝");
+            vh.tv_refuse.setText(R.string.view_message_list_denied);
             vh.tv_agree.setVisibility(View.INVISIBLE);
         }else {                                                                  //其它普通消息
             vh.tv_agree.setVisibility(View.INVISIBLE);

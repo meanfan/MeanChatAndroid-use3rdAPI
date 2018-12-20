@@ -39,16 +39,16 @@ public class AddFriendActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String username = et_username.getText().toString().trim();
                 if(username.isEmpty()){
-                    showToast("请输入用户名");
+                    showToast(getString(R.string.add_friend_message_username_empty));
                     return;
                 }
                 String reason = et_reason.getText().toString().trim();
                 try {
                     EMClient.getInstance().contactManager().addContact(username, reason);
-                    showToast("请求成功，请等待对方同意");
+                    showToast(getString(R.string.add_friend_message_success));
                     finish();
                 } catch (HyphenateException e) {
-                    showToast("请求失败，请检查用户名");
+                    showToast(getString(R.string.add_friend_message_failure));
                     e.printStackTrace();
                 }
             }

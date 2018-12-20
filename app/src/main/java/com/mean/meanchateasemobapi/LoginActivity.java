@@ -3,6 +3,7 @@ package com.mean.meanchateasemobapi;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -19,13 +20,12 @@ import java.util.List;
 
 public class LoginActivity extends AppCompatActivity{
     public static final String TAG = "LoginActivity";
+    private static final int REQUEST_CODE_REGISTER = 10;
 
     private TextView et_username;
     private TextView et_password;
-    private CheckBox cb_remember;
     private Button btn_login;
     private TextView tv_register;
-    private TextView tv_forget;
     private List<View> loginViewList;
     private ProgressBar pb_logining;
 
@@ -38,15 +38,11 @@ public class LoginActivity extends AppCompatActivity{
         et_password = findViewById(R.id.et_password);
         pb_logining = findViewById(R.id.pb_logining);
         pb_logining.setVisibility(View.INVISIBLE);
-        cb_remember = findViewById(R.id.cb_remember);
         btn_login = findViewById(R.id.btn_login);
         tv_register = findViewById(R.id.tv_register);
-        tv_forget = findViewById(R.id.tv_forget);
         loginViewList = new ArrayList<>();
-        loginViewList.add(cb_remember);
         loginViewList.add(btn_login);
         loginViewList.add(tv_register);
-        loginViewList.add(tv_forget);
 
         final Handler handler = new Handler();
         btn_login.setOnClickListener(new View.OnClickListener() {
@@ -64,7 +60,7 @@ public class LoginActivity extends AppCompatActivity{
                 String username = et_username.getText().toString();
                 String password = et_password.getText().toString();
                 if(username.isEmpty() || password.isEmpty()){
-                    showToast("username or password can't be empty");
+                    showToast(getString(R.string.login_message_empty));
                     return;
                 }
                 et_username.setEnabled(false);
@@ -73,7 +69,7 @@ public class LoginActivity extends AppCompatActivity{
                 EMClient.getInstance().login(username, password, new EMCallBack() {
                     @Override
                     public void onSuccess() {
-                        showToastSafe("登录成功");
+                        showToastSafe(getString(R.string.login_message_success));
                         Intent intent = new Intent(LoginActivity.this,MainActivity.class);
                         startActivity(intent);
                         handler.post(new Runnable() {
@@ -86,7 +82,7 @@ public class LoginActivity extends AppCompatActivity{
 
                     @Override
                     public void onError(int code, String error) {
-                        showToastSafe("登录出错："+error);
+                        showToastSafe(getString(R.string.login_message_error)+": "+error);
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
@@ -104,10 +100,28 @@ public class LoginActivity extends AppCompatActivity{
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(LoginActivity.this,RegisterActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent,REQUEST_CODE_REGISTER);
             }
         });
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        switch (requestCode){
+            case REQUEST_CODE_REGISTER:
+                if(resultCode == RESULT_OK){
+                    if(data!=null) {
+                        String username = data.getStringExtra(RegisterActivity.RESULT_INTENT_EXTRA_USERNAME);
+                        if (username != null && !username.trim().isEmpty()) {
+                            et_username.setText(username);
+                            et_password.setText("");
+                        }
+                    }
+                }
+                break;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void updateUI$Logging(){

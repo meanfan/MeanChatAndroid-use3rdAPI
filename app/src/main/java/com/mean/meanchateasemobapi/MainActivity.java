@@ -157,15 +157,15 @@ public class MainActivity extends FragmentActivity
             case PermissionChecker.PERMISSION_CHECK_REQUEST_STORAGE:
                 if(grantResults.length == 0 || grantResults[0] == PackageManager.PERMISSION_DENIED){
                     AlertDialog dialog = new AlertDialog.Builder(this)
-                            .setTitle("提示")
-                            .setMessage("您拒绝了必要权限，应用将无法运行。")
-                            .setPositiveButton("重新授权", new DialogInterface.OnClickListener() {
+                            .setTitle(R.string.dialog_title_notice)
+                            .setMessage(getResources().getString(R.string.main_message_permission_refused))
+                            .setPositiveButton(getResources().getString(R.string.dialog_button_grant_permission), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     PermissionChecker.checkStoragePermission(MainActivity.this);
                                 }
                             })
-                            .setNegativeButton("退出应用", new DialogInterface.OnClickListener() {
+                            .setNegativeButton(getResources().getString(R.string.dialog_button_quit), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     finish();
@@ -179,7 +179,7 @@ public class MainActivity extends FragmentActivity
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        menu.add(0,MENU_ID_DELETE,1,"删除");
+        menu.add(0,MENU_ID_DELETE,1,getString(R.string.menu_item_delete));
     }
 
     private boolean switchFragment(int currentFragment, int index) {
@@ -228,7 +228,7 @@ public class MainActivity extends FragmentActivity
 
     @Override
     public void onContactsFriendDeleteFailure() {
-        showToast("删除失败，请重试");
+        showToast(getString(R.string.action_message_delete_failure));
     }
 
     @Override
@@ -258,7 +258,7 @@ public class MainActivity extends FragmentActivity
 
                 @Override
                 public void onSuccess() {
-                    showToastSafe("注销成功");
+                    showToastSafe(getString(R.string.main_message_logout_success));
                     finish();
 
                 }
@@ -270,7 +270,7 @@ public class MainActivity extends FragmentActivity
 
                 @Override
                 public void onError(int code, String message) {
-                    showToastSafe("注销失败");
+                    showToastSafe(getString(R.string.main_message_logout_failure));
                 }
             });
         }
@@ -315,15 +315,15 @@ public class MainActivity extends FragmentActivity
                 @Override
                 public void run() {
                     if(error == EMError.USER_REMOVED){
-                        showToast("帐号已经被移除");
+                        showToast(getString(R.string.main_message_account_removed));
 
                     }else if (error == EMError.USER_LOGIN_ANOTHER_DEVICE) {
-                        showToast("帐号在其他设备登录");
+                        showToast(getString(R.string.main_message_account_login_another_device));
                     } else {
                         if (NetUtils.hasNetwork(MainActivity.this)) {
-                            showToast("无法连接聊天服务器");
+                            showToast(getString(R.string.main_message_chat_server_connect_failure));
                         }else{
-                            showToast("当前网络不可用，请检查网络设置");
+                            showToast(getString(R.string.main_message_network_invalid));
                         }
                     }
                 }

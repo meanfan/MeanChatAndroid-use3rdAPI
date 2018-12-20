@@ -1,11 +1,10 @@
-<resources tools:ignore="MissingTranslation" xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name" translatable="false">MeanChat</string>
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MeanChat</string>
     <string name="title_chat">消息</string>
     <string name="title_contacts">通讯录</string>
     <string name="title_me">我</string>
     <string name="title_activity_login">登录</string>
-    <string name="test_user_name" translatable="false"></string>
-    <string name="test_user_password" translatable="false"></string>
     <string name="message_default">消息</string>
     <string name="message_unhandled">未处理消息</string>
     <string name="title_activity_splash">MeanChat启动中</string>
@@ -34,17 +33,13 @@
     <string name="call_message_connecting">连接中</string>
     <string name="call_message_connect_success">连接成功，等待对方同意</string>
     <string name="call_message_answering">通话中</string>
-    <string name="call_message_connected">通话已建立</string>
     <string name="call_message_disconnect">通话结束</string>
     <string name="call_message_error">出现错误，会话关闭</string>
     <string name="dialog_delete_chat_history_confirm_message">确定清除聊天记录么？ 删除后无法恢复。</string>
-    <string name="btn_confirm">确定</string>
     <string name="chat_message_history_deleted">聊天记录已清除</string>
     <string name="btn_cancel">取消</string>
     <string name="chat_message_permission_storage_denied">无法访问存储卡</string>
     <string name="chat_input_extend_menu_item_camera">相机</string>
-    <string name="chat_input_extend_menu_item_picture">图片</string>
-    <string name="chat_input_extend_menu_item_voice_call">语音通话</string>
     <string name="chat_input_extend_menu_item_video">视频</string>
     <string name="chat_input_extend_menu_item_video_call">视频通话</string>
     <string name="chat_message_picture_read_failure">无法读取图片</string>
@@ -54,5 +49,8 @@
     <string name="chat_message_send_error">消息发送出错</string>
     <string name="view_message_list_agreed">已同意</string>
     <string name="view_message_list_denied">已拒绝</string>
-
+    <string name="call_message_connected">通话已建立</string>
+    <string name="btn_confirm">确定</string>
+    <string name="chat_input_extend_menu_item_picture">图片</string>
+    <string name="chat_input_extend_menu_item_voice_call">语音通话</string>
 </resources>
