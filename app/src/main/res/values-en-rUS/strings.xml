@@ -15,4 +15,11 @@
     <string name="register_message_failure">register failure, please retry</string>
     <string name="login_message_success">login success</string>
     <string name="login_message_error">login failure</string>
+    <string name="dialog_title_notice">Notice</string>
+    <string name="dialog_button_quit">Exit</string>
+    <string name="dialog_button_grant_permission">Retry</string>
+    <string name="menu_item_delete">Delete</string>
+    <string name="main_message_logout_success">logout success</string>
+    <string name="action_message_delete_failure">delete failure</string>
+    <string name="main_message_logout_failure">logout failure</string>
 </resources>

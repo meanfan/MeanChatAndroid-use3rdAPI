@@ -199,43 +199,43 @@ public class ContactsFragment extends Fragment {
     class MyEMContactListener implements EMContactListener {
         @Override
         public void onContactAdded(String username) {
-            final String content = String.format("%s 已成为你的好友",username);
+            final String content = String.format(getString(R.string.contacts_new_friend_message_format),username);
             Log.d(TAG, "onContactAdded: "+username);
-            ClientMessageManager.getInstance().addNewMessage("新好友",content,ClientMessage.Type.FRIEND_NEW);
+            ClientMessageManager.getInstance().addNewMessage(getString(R.string.contacts_new_friend_title),content,ClientMessage.Type.FRIEND_NEW);
             setMessageView(content);
             refreshContactListFromServer();
         }
 
         @Override
         public void onContactDeleted(String username) {
-            final String content = String.format("好友 %s 已从您联系人列表移除",username);
-            ClientMessageManager.getInstance().addNewMessage("好友信息",content,ClientMessage.Type.FRIEND_CHANGED);
+            final String content = String.format(getString(R.string.contacts_del_friend_message_format),username);
+            ClientMessageManager.getInstance().addNewMessage(getString(R.string.contacts_del_friend_title),content,ClientMessage.Type.FRIEND_CHANGED);
             setMessageView(content);
             refreshContactListFromServer();
         }
 
         @Override
         public void onContactInvited(String username, String reason) {
-            String content = String.format("%s 请求加您为好友",username);
+            String content = String.format(getString(R.string.contacts_friend_request_message_format_1),username);
             if(!reason.isEmpty()){
-                content = content.concat(String.format(",申请理由:\n%s",reason));
+                content = content.concat(String.format(getString(R.string.contacts_friend_request_message_format_2),reason));
             }
             Log.d(TAG, "onContactAdded: "+username);
-            ClientMessageManager.getInstance().addNewMessage("好友请求",content,ClientMessage.Type.FRIEND_REQUEST,username);
+            ClientMessageManager.getInstance().addNewMessage(getString(R.string.contacts_friend_request_title),content,ClientMessage.Type.FRIEND_REQUEST,username);
             setMessageView(content);
         }
 
         @Override
         public void onFriendRequestAccepted(String username) {
-            final String content = String.format("%s 已同意您的好友请求",username);
-            ClientMessageManager.getInstance().addNewMessage("好友信息",content,ClientMessage.Type.INFORMATION);
+            final String content = String.format(getString(R.string.contacts_friend_accepted_message_format),username);
+            ClientMessageManager.getInstance().addNewMessage(getString(R.string.contacts_friend_accepted_title),content,ClientMessage.Type.INFORMATION);
             setMessageView(content);
         }
 
         @Override
         public void onFriendRequestDeclined(String username) {
-            final String content = String.format(" %s 拒绝了你的好友请求",username);
-            ClientMessageManager.getInstance().addNewMessage("好友信息",content,ClientMessage.Type.INFORMATION);
+            final String content = String.format(getString(R.string.contacts_friend_refused_message_format),username);
+            ClientMessageManager.getInstance().addNewMessage(getString(R.string.contacts_friend_refused_title),content,ClientMessage.Type.INFORMATION);
             setMessageView(content);
         }
     }

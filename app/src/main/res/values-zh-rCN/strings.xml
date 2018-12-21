@@ -55,4 +55,15 @@
     <string name="chat_input_extend_menu_item_voice_call">语音通话</string>
     <string name="call_message_permission_record_voice_denied">拒绝录音权限将无法通话</string>
     <string name="message_title">消息</string>
+    <string name="contacts_new_friend_message_format">%s 已成为你的好友</string>
+    <string name="contacts_del_friend_message_format">好友 %s 已从您联系人列表移除</string>
+    <string name="contacts_friend_request_message_format_1">%s 请求加您为好友</string>
+    <string name="contacts_friend_request_message_format_2">,申请理由: %s</string>
+    <string name="contacts_friend_accepted_message_format">%s 已同意您的好友请求</string>
+    <string name="contacts_new_friend_title">新好友</string>
+    <string name="contacts_del_friend_title">好友信息</string>
+    <string name="contacts_friend_request_title">好友请求</string>
+    <string name="contacts_friend_accepted_title">好友信息</string>
+    <string name="contacts_friend_refused_message_format">%s 拒绝了你的好友请求</string>
+    <string name="contacts_friend_refused_title">好友信息</string>
 </resources>
