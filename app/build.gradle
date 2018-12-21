@@ -33,6 +33,9 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:3.7.0'
     implementation 'com.hyphenate:hyphenate-sdk:3.5.1'
     implementation project(':easeui') // 添加easeui模块依赖
+    // https://mvnrepository.com/artifact/com.alibaba/fastjson
+    implementation group: 'com.alibaba', name: 'fastjson', version: '1.2.54'
+
 
 
 }

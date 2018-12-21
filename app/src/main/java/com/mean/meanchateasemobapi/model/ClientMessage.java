@@ -1,6 +1,8 @@
 package com.mean.meanchateasemobapi.model;
 
-public class ClientMessage {
+import java.io.Serializable;
+
+public class ClientMessage implements Serializable {
     public enum Type {
         SYSTEM_ANNOUNCEMENT,
         INFORMATION,

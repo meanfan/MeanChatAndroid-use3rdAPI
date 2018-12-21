@@ -2,7 +2,9 @@ package com.mean.meanchateasemobapi.controller;
 
 import android.util.Log;
 
+import com.alibaba.fastjson.JSONArray;
 import com.mean.meanchateasemobapi.model.ClientMessage;
+import com.mean.meanchateasemobapi.util.SharedPreferenceUtil;
 
 import java.util.Date;
 import java.util.List;
@@ -10,6 +12,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ClientMessageManager {
     private static final String TAG = "ClientMessageManager";
+    private static final String LOCAL_MESSAGE_SP_FILENAME = "local_message";
+    private static final String LOCAL_MESSAGE_SP_KEY = "Kuq4TVV2ek2nKPjW";
     private static volatile ClientMessageManager instance;
     private List<ClientMessage> messages;
 
@@ -122,11 +126,15 @@ public class ClientMessageManager {
     }
 
     private void loadMessagesLocal(){
-
+        List<ClientMessage> object = (List<ClientMessage>)SharedPreferenceUtil.get(LOCAL_MESSAGE_SP_FILENAME,LOCAL_MESSAGE_SP_KEY);
+        if(object != null) {
+            messages.addAll(object);
+        }
     }
 
     public void saveMessagesLocal(){
-
+        //TODO save
+        SharedPreferenceUtil.save(LOCAL_MESSAGE_SP_FILENAME,LOCAL_MESSAGE_SP_KEY,messages);
     }
 
     public boolean isHasUnreadMessage() {

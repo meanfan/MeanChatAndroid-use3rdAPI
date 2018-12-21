@@ -33,6 +33,7 @@ import com.hyphenate.easeui.domain.EaseUser;
 import com.hyphenate.easeui.widget.EaseTitleBar;
 import com.hyphenate.util.NetUtils;
 import com.mean.meanchateasemobapi.broadcast.CallReceiver;
+import com.mean.meanchateasemobapi.controller.ClientMessageManager;
 import com.mean.meanchateasemobapi.fragment.ChatFragment;
 import com.mean.meanchateasemobapi.fragment.ContactsFragment;
 import com.mean.meanchateasemobapi.fragment.MeFragment;
@@ -96,6 +97,7 @@ public class MainActivity extends FragmentActivity
 
         titleBar = findViewById(R.id.title_bar);
         titleBar.setTitle(getString(R.string.app_name));
+        titleBar.setLeftLayoutVisibility(View.INVISIBLE);
         titleBar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
 
         chatFragment = ChatFragment.newInstance();
@@ -148,6 +150,7 @@ public class MainActivity extends FragmentActivity
         super.onDestroy();
         EMClient.getInstance().removeConnectionListener(connectionListener);
         unregisterReceiver(callReceiver);
+        ClientMessageManager.getInstance().saveMessagesLocal();
 
     }
 
