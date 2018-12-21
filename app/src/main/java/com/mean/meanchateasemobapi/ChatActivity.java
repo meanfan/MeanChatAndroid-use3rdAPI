@@ -178,7 +178,7 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
 
             @Override
             public boolean onPressToSpeakBtnTouch(View v, MotionEvent event) {
-                if(PermissionChecker.checkCameraPermission(ChatActivity.this)) {
+                if(PermissionChecker.checkRecordAudioPermission(ChatActivity.this)) {
                     return voiceRecorderView.onPressToSpeakBtnTouch(v, event, new EaseVoiceRecorderView.EaseVoiceRecorderCallback() {
                         @Override
                         public void onVoiceRecordComplete(String voiceFilePath, int voiceTimeLength) {
@@ -376,6 +376,10 @@ public class ChatActivity extends AppCompatActivity  implements EMMessageListene
     protected void initConversation(){
         conversation = EMClient.getInstance().chatManager()
                 .getConversation(toChatUsername, EMConversation.EMConversationType.Chat, true);
+        if(conversation == null){
+            showToast("聊天初始化失败");
+            finish();
+        }
         conversation.markAllMessagesAsRead();
         if (!isRoaming) {
             final List<EMMessage> msgs = conversation.getAllMessages();
