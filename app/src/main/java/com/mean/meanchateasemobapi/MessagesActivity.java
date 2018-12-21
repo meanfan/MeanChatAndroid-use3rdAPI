@@ -36,7 +36,7 @@ public class MessagesActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
         Log.d(TAG, "onCreate: "+adapter.getItemCount());
-        titleBar.setTitle(getResources().getString(R.string.dialog_title_notice));
+        titleBar.setTitle(getString(R.string.message_title));
         titleBar.setLeftLayoutClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

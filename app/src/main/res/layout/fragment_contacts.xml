@@ -22,14 +22,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="消息"
+            android:text="@string/message_no_new_message"
             android:textSize="20sp"/>
         <ImageView
             android:id="@+id/iv_message_dot"
             android:layout_width="10dp"
             android:layout_height="10dp"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/unread_dot_red"/>
+            android:src="@drawable/unread_dot_red"
+            android:visibility="invisible"/>
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

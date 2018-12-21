@@ -5,7 +5,7 @@
     <string name="title_contacts">通讯录</string>
     <string name="title_me">我</string>
     <string name="title_activity_login">登录</string>
-    <string name="message_default">消息</string>
+    <string name="message_no_new_message">消息</string>
     <string name="message_unhandled">未处理消息</string>
     <string name="title_activity_splash">MeanChat启动中</string>
     <string name="register_message_two_password_not_match">两次密码输入不一致</string>
@@ -53,4 +53,6 @@
     <string name="btn_confirm">确定</string>
     <string name="chat_input_extend_menu_item_picture">图片</string>
     <string name="chat_input_extend_menu_item_voice_call">语音通话</string>
+    <string name="call_message_permission_record_voice_denied">拒绝录音权限将无法通话</string>
+    <string name="message_title">消息</string>
 </resources>

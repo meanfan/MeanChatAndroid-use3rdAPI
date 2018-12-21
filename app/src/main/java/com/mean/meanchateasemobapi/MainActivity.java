@@ -95,7 +95,7 @@ public class MainActivity extends FragmentActivity
         fragments = new ArrayList<>();
 
         titleBar = findViewById(R.id.title_bar);
-        titleBar.setTitle("MeanChat");
+        titleBar.setTitle(getString(R.string.app_name));
         titleBar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
 
         chatFragment = ChatFragment.newInstance();

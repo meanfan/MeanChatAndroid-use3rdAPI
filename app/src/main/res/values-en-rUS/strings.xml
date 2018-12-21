@@ -7,7 +7,7 @@
     <string name="title_contacts">Contacts</string>
     <string name="title_me">Me</string>
     <string name="title_activity_login">Login</string>
-    <string name="message_default">Message</string>
+    <string name="message_no_new_message">Message</string>
     <string name="message_unhandled">Unhandled Message</string>
     <string name="title_activity_splash">Meanchat Launching</string>
     <string name="register_message_two_password_not_match">two passwords not match</string>

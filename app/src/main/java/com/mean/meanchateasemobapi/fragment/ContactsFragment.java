@@ -19,7 +19,6 @@ import com.hyphenate.EMValueCallBack;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.easeui.adapter.EaseContactAdapter;
 import com.hyphenate.easeui.domain.EaseUser;
-import com.hyphenate.easeui.utils.EaseCommonUtils;
 import com.hyphenate.easeui.widget.EaseContactList;
 import com.hyphenate.exceptions.HyphenateException;
 import com.mean.meanchateasemobapi.MainActivity;
@@ -28,11 +27,7 @@ import com.mean.meanchateasemobapi.controller.ClientMessageManager;
 import com.mean.meanchateasemobapi.model.ClientMessage;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 
 public class ContactsFragment extends Fragment {
@@ -44,27 +39,19 @@ public class ContactsFragment extends Fragment {
 
     private MyEMContactListener contactListener;
     private boolean isContactListInit =false;
-    private String cachedUserMessage;
     private Handler handler;
     private OnContactsFragmentInteractionListener mListener;
     private List<EaseUser> easeUsers;
-    private Map<String, EaseUser> contactsMap;
     private boolean isHidden;
 
     public ContactsFragment() {
-        // Required empty public constructor
+        contactListener = new MyEMContactListener();
+        EMClient.getInstance().contactManager().setContactListener(contactListener);
     }
 
     public static ContactsFragment newInstance() {
         ContactsFragment fragment = new ContactsFragment();
         return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        contactListener = new MyEMContactListener();
-        EMClient.getInstance().contactManager().setContactListener(contactListener);
     }
 
     @Override
@@ -127,14 +114,14 @@ public class ContactsFragment extends Fragment {
         super.onDetach();
         mListener = null;
         isContactListInit = false;
-        cachedUserMessage = null;
     }
 
     public void refreshUI(){
-        if(cachedUserMessage==null){
-            clearMessageView();
+        ClientMessage message = ClientMessageManager.getInstance().findLatestUnreadMessage();
+        if(message!=null){
+            setMessageView(message.getContext());
         }else {
-            setMessageView(cachedUserMessage);
+            clearMessageView();
         }
         refreshContactListFromServer();
     }
@@ -180,10 +167,9 @@ public class ContactsFragment extends Fragment {
             @Override
             public void run() {
                 if(isContactListInit){
-                    tv_message.setText(R.string.message_default);
+                    tv_message.setText(R.string.message_no_new_message);
                     iv_message_dot.setVisibility(View.INVISIBLE);
                 }
-                cachedUserMessage = null;
             }
         });
     }
@@ -195,8 +181,6 @@ public class ContactsFragment extends Fragment {
                 if (isContactListInit){
                     tv_message.setText(message);
                     iv_message_dot.setVisibility(View.VISIBLE);
-                }else{
-                    cachedUserMessage = message;
                 }
             }
         });

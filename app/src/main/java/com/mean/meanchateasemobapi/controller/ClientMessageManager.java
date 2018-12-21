@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ClientMessageManager {
-    private static final String TAG = ClientMessageManager.class.getSimpleName();
+    private static final String TAG = "ClientMessageManager";
     private static volatile ClientMessageManager instance;
     private List<ClientMessage> messages;
 
@@ -35,12 +35,16 @@ public class ClientMessageManager {
     }
 
     private boolean checkHasUnreadMessage(){
-        for(ClientMessage message:messages){
-            if(message!=null && message.getState() == ClientMessage.State.NOT_READ){
-                return true;
+        return findLatestUnreadMessage()!=null;
+    }
+
+    public ClientMessage findLatestUnreadMessage(){ //找到最新的未读消息
+        for(int i=messages.size()-1;i>=0;i--){
+            if(messages.get(i)!=null && messages.get(i).getState() == ClientMessage.State.NOT_READ){
+                return messages.get(i);
             }
         }
-        return false;
+        return null;
     }
 
     public ClientMessage addNewMessage(String title, String context, ClientMessage.Type type){
@@ -51,11 +55,11 @@ public class ClientMessageManager {
         message.setType(type);
         message.setState(ClientMessage.State.NOT_READ);
         messages.add(message);
+        Log.d(TAG, "addNewMessage: "+message.getContext());
         return message;
     }
 
     public ClientMessage addNewMessage(String title, String context, ClientMessage.Type type,String extra) {
-        Log.d(TAG, "addNewMessage");
         ClientMessage message = new ClientMessage();
         message.setTime(new Date().getTime());
         message.setTitle(title);
@@ -64,6 +68,7 @@ public class ClientMessageManager {
         message.setState(ClientMessage.State.NOT_READ);
         message.setExtra(extra);
         messages.add(message);
+        Log.d(TAG, "addNewMessage: "+message.getContext());
         return message;
     }
 
