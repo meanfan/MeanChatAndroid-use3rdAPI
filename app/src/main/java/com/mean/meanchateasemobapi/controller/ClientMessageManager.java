@@ -2,7 +2,6 @@ package com.mean.meanchateasemobapi.controller;
 
 import android.util.Log;
 
-import com.alibaba.fastjson.JSONArray;
 import com.mean.meanchateasemobapi.model.ClientMessage;
 import com.mean.meanchateasemobapi.util.SharedPreferenceUtil;
 

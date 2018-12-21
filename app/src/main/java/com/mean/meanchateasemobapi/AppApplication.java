@@ -1,18 +1,29 @@
 package com.mean.meanchateasemobapi;
 
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.os.Bundle;
+import android.util.Log;
 
+import com.hyphenate.EMMessageListener;
+import com.hyphenate.chat.EMMessage;
 import com.hyphenate.easeui.EaseUI;
 
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMOptions;
 
+import java.util.List;
+
 public class AppApplication extends Application {
+    public static final String TAG = "AppApplication";
     private volatile Activity currentActivity;
     public static Application instance;
+    private static NotificationChannel notificationChannel;
+
 
     @Override
     public void onCreate() {
@@ -35,7 +46,53 @@ public class AppApplication extends Application {
         uiOption.setAcceptInvitationAlways(false); //开启好友验证
         EaseUI.getInstance().init(this,uiOption);
 
+        EMClient.getInstance().chatManager().addMessageListener(new EMMessageListener() {
+            @Override
+            public void onMessageReceived(List<EMMessage> messages) {
+                for(EMMessage message:messages){
+                    Log.d(TAG, "onMessageReceived: "+message.toString());
+                }
+                if(currentActivity != null){
+                    return;
+                }
+
+            }
+
+            @Override
+            public void onCmdMessageReceived(List<EMMessage> messages) {
+
+            }
+
+            @Override
+            public void onMessageRead(List<EMMessage> messages) {
+
+            }
+
+            @Override
+            public void onMessageDelivered(List<EMMessage> messages) {
+
+            }
+
+            @Override
+            public void onMessageRecalled(List<EMMessage> messages) {
+
+            }
+
+            @Override
+            public void onMessageChanged(EMMessage message, Object change) {
+
+            }
+        });
+
         registerActivityLifecycleCallbacks(new MyActivityLifecycleCallbacks());
+    }
+
+    @TargetApi(26)
+    public static NotificationChannel getNotificationChannel(){
+        if(notificationChannel == null){
+            notificationChannel = new NotificationChannel("chat_msg", "chat message background", NotificationManager.IMPORTANCE_HIGH);
+        }
+        return notificationChannel;
     }
 
     public Activity getCurrentActivity() {

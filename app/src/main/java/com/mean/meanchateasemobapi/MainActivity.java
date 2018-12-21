@@ -1,10 +1,17 @@
 package com.mean.meanchateasemobapi;
 
+import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -13,6 +20,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -28,7 +36,11 @@ import com.hyphenate.EMConversationListener;
 import com.hyphenate.EMError;
 import com.hyphenate.EMMessageListener;
 import com.hyphenate.chat.EMClient;
+import com.hyphenate.chat.EMImageMessageBody;
 import com.hyphenate.chat.EMMessage;
+import com.hyphenate.chat.EMMessageBody;
+import com.hyphenate.chat.EMTextMessageBody;
+import com.hyphenate.chat.EMVoiceMessageBody;
 import com.hyphenate.easeui.domain.EaseUser;
 import com.hyphenate.easeui.widget.EaseTitleBar;
 import com.hyphenate.util.NetUtils;
@@ -337,7 +349,47 @@ public class MainActivity extends FragmentActivity
     class MyMessageListener implements EMMessageListener{
         @Override
         public void onMessageReceived(List<EMMessage> messages) {
-            chatFragment.refreshChatListFromServer(chatSizeIgnoreSort);
+            Activity currentActivity  = ((AppApplication)AppApplication.instance).getCurrentActivity();
+            if( (currentActivity instanceof MainActivity && currentFragment == 0) || currentActivity instanceof ChatActivity){
+                chatFragment.refreshChatListFromServer(chatSizeIgnoreSort);
+            }else {
+                if(messages.size()==0){
+                    return;
+                }
+                EMMessage message = messages.get(0);
+                EMMessageBody messageBody = message.getBody();
+                String messageBodyString;
+                if(messageBody instanceof EMTextMessageBody){
+                    messageBodyString = ((EMTextMessageBody) messageBody).getMessage();
+                }else if(messageBody instanceof EMVoiceMessageBody){
+                    messageBodyString = "[语音]";
+                }else if(messageBody instanceof EMImageMessageBody){
+                    messageBodyString = "[图片]";
+                }else{
+                    messageBodyString = "[未知类型的消息]";
+                }
+                int requestCode = 0;
+                int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+                int id = 1;
+                Intent resultIntent = new Intent(MainActivity.this, ChatActivity.class);
+                resultIntent.putExtra("username",message.getFrom());
+                TaskStackBuilder stackBuilder = TaskStackBuilder.create(MainActivity.this);
+                stackBuilder.addParentStack(ChatActivity.class);
+                stackBuilder.addNextIntent(resultIntent);
+                PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(requestCode, flags);
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
+                        .setSmallIcon(R.drawable.ic_launcher)
+                        .setContentTitle(message.getFrom())
+                        .setContentText(messageBodyString)
+                        .setContentIntent(resultPendingIntent)
+                        .setAutoCancel(true);
+                NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    mNotificationManager.createNotificationChannel(AppApplication.getNotificationChannel());
+                    builder.setChannelId(AppApplication.getNotificationChannel().getId());
+                }
+                mNotificationManager.notify(id, builder.build());
+            }
         }
 
         @Override
