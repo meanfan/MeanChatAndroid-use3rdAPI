@@ -63,7 +63,7 @@ public class MessagesRecyclerViewAdapter extends RecyclerView.Adapter<MessagesRe
         if(message.getState() == ClientMessage.State.NOT_READ){
             vh.iv_dot.setVisibility(View.VISIBLE);
         }else {
-            vh.iv_dot.setVisibility(View.INVISIBLE);
+            vh.iv_dot.setVisibility(View.GONE);
         }
 
         vh.tv_title.setText(message.getTitle());
@@ -101,7 +101,7 @@ public class MessagesRecyclerViewAdapter extends RecyclerView.Adapter<MessagesRe
                         vh.tv_agree.setVisibility(View.VISIBLE);
                         vh.tv_agree.setClickable(false);
                         vh.tv_agree.setText(R.string.view_message_list_agreed);
-                        vh.tv_refuse.setVisibility(View.INVISIBLE);
+                        vh.tv_refuse.setVisibility(View.GONE);
                         //TODO update message type , use interface callback
                         ClientMessageManager.getInstance().markMessageAgree(messageList.size()-1-vh.getAdapterPosition());
                         message.setType(ClientMessage.Type.FRIEND_REQUEST_AGREED);
@@ -124,7 +124,7 @@ public class MessagesRecyclerViewAdapter extends RecyclerView.Adapter<MessagesRe
                         vh.tv_refuse.setVisibility(View.VISIBLE);
                         vh.tv_refuse.setClickable(false);
                         vh.tv_refuse.setText(R.string.view_message_list_denied);
-                        vh.tv_agree.setVisibility(View.INVISIBLE);
+                        vh.tv_agree.setVisibility(View.GONE);
                         //TODO update message type , use interface callback
                         ClientMessageManager.getInstance().markMessageRefuse(messageList.size()-1-vh.getAdapterPosition());
                         message.setType(ClientMessage.Type.FRIEND_REQUEST_REFUSED);
@@ -137,18 +137,18 @@ public class MessagesRecyclerViewAdapter extends RecyclerView.Adapter<MessagesRe
                 }
             });
         }else if(message.getType() == ClientMessage.Type.FRIEND_REQUEST_AGREED) { //已同意的好友请求
-            vh.tv_agree.setVisibility(View.VISIBLE);
+            vh.tv_agree.setVisibility(View.GONE);
             vh.tv_agree.setClickable(false);
             vh.tv_agree.setText(R.string.view_message_list_agreed);
-            vh.tv_refuse.setVisibility(View.INVISIBLE);
+            vh.tv_refuse.setVisibility(View.GONE);
         }else if(message.getType() == ClientMessage.Type.FRIEND_REQUEST_REFUSED){ //已拒绝的好友请求
             vh.tv_refuse.setVisibility(View.VISIBLE);
             vh.tv_refuse.setClickable(false);
             vh.tv_refuse.setText(R.string.view_message_list_denied);
-            vh.tv_agree.setVisibility(View.INVISIBLE);
+            vh.tv_agree.setVisibility(View.GONE);
         }else {                                                                  //其它普通消息
-            vh.tv_agree.setVisibility(View.INVISIBLE);
-            vh.tv_refuse.setVisibility(View.INVISIBLE);
+            vh.tv_agree.setVisibility(View.GONE);
+            vh.tv_refuse.setVisibility(View.GONE);
             message.setState(ClientMessage.State.HAVE_READ);
         }
     }
