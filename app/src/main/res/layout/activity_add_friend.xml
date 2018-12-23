@@ -13,11 +13,13 @@
         android:id="@+id/et_username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:inputType="textNoSuggestions"
         android:hint="对方用户名"/>
     <EditText
         android:id="@+id/et_reason"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:inputType="textNoSuggestions"
         android:hint="理由"/>
     <Button
         android:id="@+id/btn_add"

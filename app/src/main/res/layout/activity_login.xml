@@ -16,7 +16,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:hint="用户名"
-        android:text="@string/test_user_name" />
+        android:text="@string/test_user_name"
+        android:inputType="textNoSuggestions"/>
 
     <EditText
         android:id="@+id/et_password"
