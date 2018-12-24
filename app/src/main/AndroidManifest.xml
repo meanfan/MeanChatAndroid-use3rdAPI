@@ -82,10 +82,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity"/>
         </activity>
-        <activity android:name=".RegisterActivity" />
+        <activity android:name=".RegisterActivity" android:theme="@style/TranslucentTheme"/>
         <activity android:name=".AddFriendActivity" />
         <activity android:name=".MessagesActivity" />
-        <activity android:name="com.hyphenate.easeui.ui.EaseShowBigImageActivity" />
+        <activity android:name="com.hyphenate.easeui.ui.EaseShowBigImageActivity" android:theme="@style/TranslucentTheme" />
         <activity android:name=".CallActivity" android:launchMode="singleTask" android:theme="@style/TranslucentTheme"/>
         <provider
             android:name="android.support.v4.content.FileProvider"
