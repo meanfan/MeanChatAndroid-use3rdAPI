@@ -209,6 +209,9 @@ public class ContactsFragment extends Fragment {
         @Override
         public void onContactDeleted(String username) {
             final String content = String.format(getString(R.string.contacts_del_friend_message_format),username);
+            try {
+                EMClient.getInstance().contactManager().deleteContact(username);
+            } catch (HyphenateException e) { e.printStackTrace();}
             ClientMessageManager.getInstance().addNewMessage(getString(R.string.contacts_del_friend_title),content,ClientMessage.Type.FRIEND_CHANGED);
             setMessageView(content);
             refreshContactListFromServer();
