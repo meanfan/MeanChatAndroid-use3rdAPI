@@ -153,7 +153,8 @@ public class ContactsFragment extends Fragment {
         if(item.getItemId() == MainActivity.MENU_ID_DELETE){
             try {
                 EMClient.getInstance().contactManager().deleteContact(user.getUsername());
-                //refreshContactListFromServer();
+                refreshContactListFromServer();
+                mListener.onContactsFriendDeleteSuccess();
             } catch (HyphenateException e) {
                 e.printStackTrace();
                 mListener.onContactsFriendDeleteFailure();
@@ -193,6 +194,7 @@ public class ContactsFragment extends Fragment {
     public interface OnContactsFragmentInteractionListener {
         void onContactsMessageClick();
         void startChatActivity(String username);
+        void onContactsFriendDeleteSuccess();
         void onContactsFriendDeleteFailure();
     }
 
@@ -209,9 +211,7 @@ public class ContactsFragment extends Fragment {
         @Override
         public void onContactDeleted(String username) {
             final String content = String.format(getString(R.string.contacts_del_friend_message_format),username);
-            try {
-                EMClient.getInstance().contactManager().deleteContact(username);
-            } catch (HyphenateException e) { e.printStackTrace();}
+            EMClient.getInstance().chatManager().deleteConversation(username,true);
             ClientMessageManager.getInstance().addNewMessage(getString(R.string.contacts_del_friend_title),content,ClientMessage.Type.FRIEND_CHANGED);
             setMessageView(content);
             refreshContactListFromServer();
