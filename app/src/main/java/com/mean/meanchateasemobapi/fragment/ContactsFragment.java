@@ -39,16 +39,14 @@ public class ContactsFragment extends Fragment {
     private TextView tv_message;
     private ImageView iv_message_dot;
 
-    private MyEMContactListener contactListener;
-    private boolean isContactListInit =false;
+    private boolean isInit = false;
+    private String cachedMessageWhenNotInit = null;
     private Handler handler;
     private OnContactsFragmentInteractionListener mListener;
     private List<EaseUser> easeUsers;
     private boolean isHidden;
 
     public ContactsFragment() {
-        contactListener = new MyEMContactListener();
-        EMClient.getInstance().contactManager().setContactListener(contactListener);
     }
 
     public static ContactsFragment newInstance() {
@@ -83,7 +81,6 @@ public class ContactsFragment extends Fragment {
         contactList.setShowSiderBar(false);
         ((EaseContactAdapter)contactList.getListView().getAdapter()).setInitialLetterBg(
                 new ColorDrawable(getResources().getColor(R.color.initial_letter_bg)));
-        isContactListInit = true;
         contactList.getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -92,6 +89,10 @@ public class ContactsFragment extends Fragment {
             }
         });
         getActivity().registerForContextMenu(contactList.getListView());
+        if(cachedMessageWhenNotInit!=null && !cachedMessageWhenNotInit.isEmpty()){
+            setMessageView(cachedMessageWhenNotInit);
+        }
+        isInit = true;
     }
 
     @Override
@@ -115,7 +116,7 @@ public class ContactsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
-        isContactListInit = false;
+        isInit = false;
     }
 
     public void refreshUI(){
@@ -179,10 +180,14 @@ public class ContactsFragment extends Fragment {
     }
 
     public void clearMessageView(){
+        if(!isInit){
+            return;
+        }
+        cachedMessageWhenNotInit = null;
         handler.post(new Runnable() {
             @Override
             public void run() {
-                if(isContactListInit){
+                if(isInit){
                     tv_message.setText(R.string.message_no_new_message);
                     iv_message_dot.setVisibility(View.INVISIBLE);
                 }
@@ -191,10 +196,15 @@ public class ContactsFragment extends Fragment {
     }
 
     public void setMessageView(final String message){
+        if(!isInit){
+            cachedMessageWhenNotInit = message;
+            return;
+        }
+        cachedMessageWhenNotInit = null;
         handler.post(new Runnable() {
             @Override
             public void run() {
-                if (isContactListInit){
+                if (isInit){
                     tv_message.setText(message);
                     iv_message_dot.setVisibility(View.VISIBLE);
                 }
@@ -211,50 +221,5 @@ public class ContactsFragment extends Fragment {
         void startChatActivity(String username);
         void onContactsFriendDeleteSuccess();
         void onContactsFriendDeleteFailure();
-    }
-
-    class MyEMContactListener implements EMContactListener {
-        @Override
-        public void onContactAdded(String username) {
-            final String content = String.format(getString(R.string.contacts_new_friend_message_format),username);
-            Log.d(TAG, "onContactAdded: "+username);
-            ClientMessageManager.getInstance().addNewMessage(getString(R.string.contacts_new_friend_title),content,ClientMessage.Type.FRIEND_NEW);
-            setMessageView(content);
-            refreshContactListFromServer();
-        }
-
-        @Override
-        public void onContactDeleted(String username) {
-            final String content = String.format(getString(R.string.contacts_del_friend_message_format),username);
-            EMClient.getInstance().chatManager().deleteConversation(username,true);
-            ClientMessageManager.getInstance().addNewMessage(getString(R.string.contacts_del_friend_title),content,ClientMessage.Type.FRIEND_CHANGED);
-            setMessageView(content);
-            refreshContactListFromServer();
-        }
-
-        @Override
-        public void onContactInvited(String username, String reason) {
-            String content = String.format(getString(R.string.contacts_friend_request_message_format_1),username);
-            if(!reason.isEmpty()){
-                content = content.concat(String.format(getString(R.string.contacts_friend_request_message_format_2),reason));
-            }
-            Log.d(TAG, "onContactAdded: "+username);
-            ClientMessageManager.getInstance().addNewMessage(getString(R.string.contacts_friend_request_title),content,ClientMessage.Type.FRIEND_REQUEST,username);
-            setMessageView(content);
-        }
-
-        @Override
-        public void onFriendRequestAccepted(String username) {
-            final String content = String.format(getString(R.string.contacts_friend_accepted_message_format),username);
-            ClientMessageManager.getInstance().addNewMessage(getString(R.string.contacts_friend_accepted_title),content,ClientMessage.Type.INFORMATION);
-            setMessageView(content);
-        }
-
-        @Override
-        public void onFriendRequestDeclined(String username) {
-            final String content = String.format(getString(R.string.contacts_friend_refused_message_format),username);
-            ClientMessageManager.getInstance().addNewMessage(getString(R.string.contacts_friend_refused_title),content,ClientMessage.Type.INFORMATION);
-            setMessageView(content);
-        }
     }
 }

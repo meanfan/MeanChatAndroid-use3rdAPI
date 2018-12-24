@@ -32,6 +32,7 @@ import android.widget.Toast;
 
 import com.hyphenate.EMCallBack;
 import com.hyphenate.EMConnectionListener;
+import com.hyphenate.EMContactListener;
 import com.hyphenate.EMConversationListener;
 import com.hyphenate.EMError;
 import com.hyphenate.EMMessageListener;
@@ -65,6 +66,7 @@ public class MainActivity extends FragmentActivity
     private MyEMConnectionListener connectionListener;
     private MyMessageListener messageListener;
     private MyConversationListener conversationListener;
+    private MyEMContactListener contactListener;
     private CallReceiver callReceiver;
 
     private EaseTitleBar titleBar;
@@ -139,6 +141,9 @@ public class MainActivity extends FragmentActivity
 
         conversationListener = new MyConversationListener();
         EMClient.getInstance().chatManager().addConversationListener(conversationListener);
+
+        contactListener = new MyEMContactListener();
+        EMClient.getInstance().contactManager().setContactListener(contactListener);
 
         IntentFilter callFilter = new IntentFilter(EMClient.getInstance().callManager().getIncomingCallBroadcastAction());
         callReceiver = new CallReceiver();
@@ -430,6 +435,51 @@ public class MainActivity extends FragmentActivity
         public void onCoversationUpdate() {
             Log.d(TAG, "onCoversationUpdate: refreshChatListFromServer");
             chatFragment.refreshChatListFromServer(chatSizeIgnoreSort);
+        }
+    }
+
+    class MyEMContactListener implements EMContactListener {
+        @Override
+        public void onContactAdded(String username) {
+            final String content = String.format(getString(R.string.contacts_new_friend_message_format),username);
+            Log.d(TAG, "onContactAdded: "+username);
+            ClientMessageManager.getInstance().addNewMessage(getString(R.string.contacts_new_friend_title),content,ClientMessage.Type.FRIEND_NEW);
+            contactsFragment.setMessageView(content);
+            contactsFragment.refreshContactListFromServer();
+        }
+
+        @Override
+        public void onContactDeleted(String username) {
+            final String content = String.format(getString(R.string.contacts_del_friend_message_format),username);
+            EMClient.getInstance().chatManager().deleteConversation(username,true);
+            ClientMessageManager.getInstance().addNewMessage(getString(R.string.contacts_del_friend_title),content,ClientMessage.Type.FRIEND_CHANGED);
+            contactsFragment.setMessageView(content);
+            contactsFragment.refreshContactListFromServer();
+        }
+
+        @Override
+        public void onContactInvited(String username, String reason) {
+            String content = String.format(getString(R.string.contacts_friend_request_message_format_1),username);
+            if(!reason.isEmpty()){
+                content = content.concat(String.format(getString(R.string.contacts_friend_request_message_format_2),reason));
+            }
+            Log.d(TAG, "onContactAdded: "+username);
+            ClientMessageManager.getInstance().addNewMessage(getString(R.string.contacts_friend_request_title),content,ClientMessage.Type.FRIEND_REQUEST,username);
+            contactsFragment.setMessageView(content);
+        }
+
+        @Override
+        public void onFriendRequestAccepted(String username) {
+            final String content = String.format(getString(R.string.contacts_friend_accepted_message_format),username);
+            ClientMessageManager.getInstance().addNewMessage(getString(R.string.contacts_friend_accepted_title),content,ClientMessage.Type.INFORMATION);
+            contactsFragment.setMessageView(content);
+        }
+
+        @Override
+        public void onFriendRequestDeclined(String username) {
+            final String content = String.format(getString(R.string.contacts_friend_refused_message_format),username);
+            ClientMessageManager.getInstance().addNewMessage(getString(R.string.contacts_friend_refused_title),content,ClientMessage.Type.INFORMATION);
+            contactsFragment.setMessageView(content);
         }
     }
 }
