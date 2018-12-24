@@ -243,6 +243,11 @@ public class MainActivity extends FragmentActivity
     }
 
     @Override
+    public void onContactsFriendDeleteSuccess() {
+        showToast(getString(R.string.action_message_delete_success));
+    }
+
+    @Override
     public void onContactsFriendDeleteFailure() {
         showToast(getString(R.string.action_message_delete_failure));
     }
