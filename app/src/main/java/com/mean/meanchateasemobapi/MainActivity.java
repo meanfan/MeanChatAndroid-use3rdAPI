@@ -49,6 +49,7 @@ import com.mean.meanchateasemobapi.controller.ClientMessageManager;
 import com.mean.meanchateasemobapi.fragment.ChatFragment;
 import com.mean.meanchateasemobapi.fragment.ContactsFragment;
 import com.mean.meanchateasemobapi.fragment.MeFragment;
+import com.mean.meanchateasemobapi.model.ClientMessage;
 import com.mean.meanchateasemobapi.util.PermissionChecker;
 
 import java.util.ArrayList;
@@ -258,37 +259,38 @@ public class MainActivity extends FragmentActivity
     }
 
     @Override
-    public void onMeFragmentInteraction(Uri uri) {
+    public void onLogoutButtonPressed() {
         final Handler handler = new Handler();
-        if(uri.compareTo(MeFragment.URI_VIEW_BUTTON_LOGOUT)==0){
-            EMClient.getInstance().logout(true, new EMCallBack() {
-                void showToastSafe(final String message){
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            showToast(message);
-                        }
-                    });
-                }
+        EMClient.getInstance().logout(true, new EMCallBack() {
+            void showToastSafe(final String message){
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        showToast(message);
+                    }
+                });
+            }
 
-                @Override
-                public void onSuccess() {
-                    showToastSafe(getString(R.string.main_message_logout_success));
-                    finish();
+            @Override
+            public void onSuccess() {
+                showToastSafe(getString(R.string.main_message_logout_success));
+                ClientMessageManager.getInstance().resetMessages(null); //清空
+                Intent intent = new Intent(MainActivity.this,LoginActivity.class);
+                intent.putExtra("username",EMClient.getInstance().getCurrentUser());
+                startActivity(intent);
+                finish();
+            }
 
-                }
+            @Override
+            public void onProgress(int progress, String status) {
 
-                @Override
-                public void onProgress(int progress, String status) {
+            }
 
-                }
-
-                @Override
-                public void onError(int code, String message) {
-                    showToastSafe(getString(R.string.main_message_logout_failure));
-                }
-            });
-        }
+            @Override
+            public void onError(int code, String message) {
+                showToastSafe(getString(R.string.main_message_logout_failure));
+            }
+        });
     }
 
     @Override

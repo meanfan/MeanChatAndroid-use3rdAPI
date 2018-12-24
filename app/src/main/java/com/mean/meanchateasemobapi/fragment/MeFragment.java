@@ -13,7 +13,6 @@ import com.mean.meanchateasemobapi.R;
 
 public class MeFragment extends Fragment {
     private static final String FRAGMENT_ARG_NICKNAME = "nickname";
-    public static final Uri URI_VIEW_BUTTON_LOGOUT = Uri.parse("view://com.mean.meanchat.android/MeFragment/button/logout");
     private String nickname;
     private OnFragmentInteractionListener mListener;
 
@@ -45,17 +44,12 @@ public class MeFragment extends Fragment {
         view.findViewById(R.id.btn_logout).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onButtonPressed(URI_VIEW_BUTTON_LOGOUT);
+                if (mListener != null) {
+                    mListener.onLogoutButtonPressed();
+                }
             }
         });
         return view;
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onMeFragmentInteraction(uri);
-        }
     }
 
     @Override
@@ -76,6 +70,6 @@ public class MeFragment extends Fragment {
     }
 
     public interface OnFragmentInteractionListener {
-        void onMeFragmentInteraction(Uri uri);
+        void onLogoutButtonPressed();
     }
 }

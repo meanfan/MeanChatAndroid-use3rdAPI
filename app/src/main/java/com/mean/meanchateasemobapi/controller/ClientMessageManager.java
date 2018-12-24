@@ -1,5 +1,6 @@
 package com.mean.meanchateasemobapi.controller;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.mean.meanchateasemobapi.model.ClientMessage;
@@ -32,9 +33,11 @@ public class ClientMessageManager {
         loadMessagesLocal();
     }
 
-    public void resetMessages(List<ClientMessage> messages) {
+    public void resetMessages(@Nullable List<ClientMessage> messages) {
         this.messages.clear();
-        this.messages.addAll(messages);
+        if(messages!=null) {
+            this.messages.addAll(messages);
+        }
     }
 
     private boolean checkHasUnreadMessage(){

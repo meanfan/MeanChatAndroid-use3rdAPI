@@ -43,6 +43,14 @@ public class LoginActivity extends AppCompatActivity{
         loginViewList = new ArrayList<>();
         loginViewList.add(btn_login);
         loginViewList.add(tv_register);
+        if(getIntent()!=null){
+             String name =  getIntent().getStringExtra("username");
+             if(name!=null && !name.isEmpty()){
+                 et_username.setText(name);
+                 et_username.clearFocus();
+                 et_password.requestFocus();
+             }
+        }
 
         final Handler handler = new Handler();
         btn_login.setOnClickListener(new View.OnClickListener() {
