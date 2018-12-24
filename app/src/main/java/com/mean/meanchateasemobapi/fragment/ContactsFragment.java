@@ -1,5 +1,7 @@
 package com.mean.meanchateasemobapi.fragment;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -149,16 +151,29 @@ public class ContactsFragment extends Fragment {
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo cmi=(AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
         int pos=cmi.position;
-         EaseUser user = (EaseUser) contactList.getListView().getItemAtPosition(pos);
+         final EaseUser user = (EaseUser) contactList.getListView().getItemAtPosition(pos);
+         final String username  = user.getUsername();
         if(item.getItemId() == MainActivity.MENU_ID_DELETE){
-            try {
-                EMClient.getInstance().contactManager().deleteContact(user.getUsername());
-                refreshContactListFromServer();
-                mListener.onContactsFriendDeleteSuccess();
-            } catch (HyphenateException e) {
-                e.printStackTrace();
-                mListener.onContactsFriendDeleteFailure();
-            }
+            AlertDialog dialog = new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.message_title)
+                    .setMessage(R.string.dialog_message_delete_friend_confirm)
+                    .setPositiveButton(R.string.btn_confirm, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            try {
+                                EMClient.getInstance().contactManager().deleteContact(username);
+                                refreshContactListFromServer();
+                                mListener.onContactsFriendDeleteSuccess();
+                            } catch (HyphenateException e) {
+                                e.printStackTrace();
+                                mListener.onContactsFriendDeleteFailure();
+                            }
+                        }
+                    })
+                    .setNegativeButton(R.string.btn_cancel,null)
+                    .setCancelable(true)
+                    .create();
+            dialog.show();
         }
         return super.onContextItemSelected(item);
     }
