@@ -31,6 +31,8 @@ public class CallActivity extends AppCompatActivity implements View.OnClickListe
     private ImageButton ibHangup;
 
     private boolean isCallRequester;
+    private boolean isCallAccecpt = false;
+    private boolean isCallEnd = false;
     private String from;
     private String type = EMCallStateChangeListener.CallState.CONNECTING.toString();
     private EMCallStateChangeListener.CallState state;
@@ -101,6 +103,10 @@ public class CallActivity extends AppCompatActivity implements View.OnClickListe
                         break;
 
                     case ACCEPTED: // 电话接通成功
+                        if(isCallAccecpt){ //防止多次ACCEPTED
+                            break;
+                        }
+                        isCallAccecpt = true;
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -112,6 +118,10 @@ public class CallActivity extends AppCompatActivity implements View.OnClickListe
                         });
                         break;
                     case DISCONNECTED: // 电话断了
+                        if(isCallEnd){ //防止多次DISCONNECTED
+                            break;
+                        }
+                        isCallEnd = true;
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
