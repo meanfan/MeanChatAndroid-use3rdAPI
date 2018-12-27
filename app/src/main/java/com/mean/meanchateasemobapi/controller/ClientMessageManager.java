@@ -6,6 +6,7 @@ import android.util.Log;
 import com.mean.meanchateasemobapi.model.ClientMessage;
 import com.mean.meanchateasemobapi.util.SharedPreferenceUtil;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -34,6 +35,9 @@ public class ClientMessageManager {
     }
 
     public void resetMessages(@Nullable List<ClientMessage> messages) {
+        if(this.messages == null){
+            this.messages = new CopyOnWriteArrayList<>();
+        }
         this.messages.clear();
         if(messages!=null) {
             this.messages.addAll(messages);
