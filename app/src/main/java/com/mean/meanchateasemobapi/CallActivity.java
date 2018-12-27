@@ -12,7 +12,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.hyphenate.chat.EMCallSession;
 import com.hyphenate.chat.EMCallStateChangeListener;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.exceptions.EMNoActiveCallException;
@@ -65,7 +64,7 @@ public class CallActivity extends AppCompatActivity implements View.OnClickListe
             ibAnswer.setVisibility(View.VISIBLE);
         }
 
-        tvName.setText(from);
+        tvName.setText(EMClient.getInstance().callManager().getCurrentCallSession().getRemoteName());
         EMClient.getInstance().callManager().addCallStateChangeListener(new EMCallStateChangeListener() {
             @Override
             public void onCallStateChanged(CallState callState, CallError error) {
@@ -91,7 +90,12 @@ public class CallActivity extends AppCompatActivity implements View.OnClickListe
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                tvStatus.setText(getString(R.string.call_message_connect_success));
+                                if(isCallRequester) {
+                                    tvStatus.setText(getString(R.string.call_message_connect_success_calling));
+                                }else {
+                                    tvStatus.setText(getString(R.string.call_message_connect_success_incoming));
+                                }
+
                             }
                         });
                         break;
