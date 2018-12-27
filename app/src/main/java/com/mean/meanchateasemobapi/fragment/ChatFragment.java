@@ -101,6 +101,9 @@ public class ChatFragment extends Fragment {
         if(!isCreate) {
             return;
         }
+        if(conversations == null){
+            conversations = new ArrayList<>();
+        }
         conversations.clear();
         conversations.addAll(loadChatListFromServer(sizeIgnoreSort));
         if(!isChatListInit){
