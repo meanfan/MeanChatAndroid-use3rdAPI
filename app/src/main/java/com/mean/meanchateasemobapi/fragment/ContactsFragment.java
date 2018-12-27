@@ -133,12 +133,17 @@ public class ContactsFragment extends Fragment {
         EMClient.getInstance().contactManager().aysncGetAllContactsFromServer(new EMValueCallBack<List<String>>() {
             @Override
             public void onSuccess(final List<String> value) {
+                if(easeUsers==null) {
+                    easeUsers = new ArrayList<>();
+                }
                 easeUsers.clear();
                 for(String username:value){
                     easeUsers.add(new EaseUser(username));
                 }
-                contactList.refresh();
-                contactList.getListView().postInvalidate();
+                if(contactList!=null) {
+                    contactList.refresh();
+                    contactList.getListView().postInvalidate();
+                }
             }
 
             @Override
