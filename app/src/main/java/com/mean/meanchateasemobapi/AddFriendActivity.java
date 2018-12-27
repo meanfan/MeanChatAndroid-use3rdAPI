@@ -26,6 +26,7 @@ public class AddFriendActivity extends AppCompatActivity {
         et_username = findViewById(R.id.et_username);
         et_reason = findViewById(R.id.et_reason);
         btn_add = findViewById(R.id.btn_add);
+        titleBar.setTitle(getString(R.string.add_friend_titlebar_title));
         titleBar.setLeftImageResource(R.drawable.ic_left_array_white);
         titleBar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
         titleBar.setLeftLayoutClickListener(new View.OnClickListener() {
